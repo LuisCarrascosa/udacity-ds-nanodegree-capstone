@@ -50,24 +50,24 @@ INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ENG.MC", "Enagas
 -- SELECT datetime(d1,"unixepoch"); FROM datetime_int;
 CREATE TABLE market_data (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  ticker_name TEXT NOT NULL,
-  fecha INTEGER NOT NULL, 
+  ticker_code TEXT NOT NULL,
+  fecha TEXT NOT NULL, 
   apertura REAL NOT NULL,
   maximo REAL NOT NULL,
   minimo REAL NOT NULL,
   cierre REAL NOT NULL,
   volumen INTEGER ,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (ticker_name) REFERENCES tickers (ticker_name)
+  FOREIGN KEY (ticker_code) REFERENCES tickers (code)
 );
 
-CREATE INDEX ticker_name ON market_data (ticker_name);
+CREATE INDEX ticker_code ON market_data (ticker_code);
 
 CREATE TABLE forex_data (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   currency_from TEXT NOT NULL,
   currency_to TEXT NOT NULL,
-  fecha INTEGER NOT NULL, 
+  fecha TEXT NOT NULL, 
   apertura REAL NOT NULL,
   maximo REAL NOT NULL,
   minimo REAL NOT NULL,
