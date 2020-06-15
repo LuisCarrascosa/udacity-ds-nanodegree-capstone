@@ -1,5 +1,6 @@
 import flaskr.market_data_dao as data_dao
 import flaskr.api_controller as api_c
+import time
 from datetime import datetime
 
 
@@ -14,16 +15,22 @@ def process_tickers(tickers_selected, start_date, end_date):
         )
 
         if market_data is None or len(market_data) == 0:
-            market_data = api_c.call_api(ticker, start_date, end_date)
-            data_dao.save_data(ticker, market_data)
-            continue
-        elif market_data[0].fecha <= datetime.strptime(start_date, '%Y-%m-%d')\
-                and market_data[-1].fecha > datetime.strptime(end_date, '%Y-%m-%d'):
-            data[ticker] = market_data
+            market_data = api_c.call_api(ticker.code, start_date, end_date)
+            data_dao.save_data(market_data)
+            time.sleep(15)
             continue
 
-        market_data = api_c.call_api(ticker, start_date, end_date)
-        data_dao.save_data(ticker, market_data)
+        start_date_db = datetime.strptime(market_data[0]['fecha'], '%Y-%m-%d')
+        end_date_db = datetime.strptime(market_data[-1]['fecha'], '%Y-%m-%d')
+
+        if start_date_db <= datetime.strptime(start_date, '%Y-%m-%d')\
+                and end_date_db >= datetime.strptime(end_date, '%Y-%m-%d'):
+            print("No hace falta ir por datos")
+            data[ticker.code] = market_data
+            continue
+
+        market_data = api_c.call_api(ticker.code, start_date, end_date)
+        data_dao.save_data(market_data)
 
 
 #     -- SELECT datetime(d1, "unixepoch")

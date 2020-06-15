@@ -1,30 +1,30 @@
 
 class MarketData:
 
-    def __init__(self, row_data):
+    def __init__(self, data):
         try:
-            self.id = row_data['id']
-        except IndexError:
+            self.id = data['id']
+        except KeyError:
             self.id = None
 
-        self.ticker_code = row_data['ticker_code']
-        self.fecha = row_data['fecha']
-        self.apertura = row_data['apertura']
-        self.maximo = row_data['maximo']
-        self.minimo = row_data['minimo']
-        self.cierre = row_data['cierre']
-        self.volumen = row_data['volumen']
+        self.ticker_code = data['ticker_code']
+        self.fecha = data['fecha']
+        self.apertura = data['apertura']
+        self.maximo = data['maximo']
+        self.minimo = data['minimo']
+        self.cierre = data['cierre']
+        self.volumen = data['volumen']
 
 
 class Ticker:
 
-    def __init__(self, row_data):
+    def __init__(self, data):
         try:
-            self.id = row_data['id']
-        except IndexError:
+            self.id = data['id']
+        except KeyError:
             self.id = None
 
-        self.ticker_name = row_data['ticker_name']
-        self.code = row_data['code']
-        self.api = row_data['api']
-        self.currency = row_data['currency']
+        self.ticker_name = data['ticker_name']
+        self.code = data['code']
+        self.api = data['api']
+        self.currency = data['currency']

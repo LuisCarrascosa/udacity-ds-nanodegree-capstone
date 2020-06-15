@@ -2,7 +2,7 @@ from datetime import datetime
 from flaskr.app_dto import MarketData
 
 
-def alphavantage_daily_parser(ticker_name, json, limits=[]):
+def alphavantage_daily_parser(ticker, json, limits=[]):
     output = []
 
     if len(limits) > 0 and len(limits) != 2:
@@ -13,20 +13,27 @@ def alphavantage_daily_parser(ticker_name, json, limits=[]):
 
         if fecha >= limits[0] and fecha <= limits[1]:
             output.insert(0, MarketData(
-                ticker_name,
-                float(json["Time Series (Daily)"][date]["1. open"]),
-                float(json["Time Series (Daily)"][date]["2. high"]),
-                float(json["Time Series (Daily)"][date]["3. low"]),
-                float(json["Time Series (Daily)"][date]["4. close"]),
-                float(json["Time Series (Daily)"][date]["5. volume"]),
-                fecha
+                {
+                    'ticker_code': ticker,
+                    'fecha': fecha,
+                    'apertura':
+                    float(json["Time Series (Daily)"][date]["1. open"]),
+                    'maximo':
+                    float(json["Time Series (Daily)"][date]["2. high"]),
+                    'minimo':
+                    float(json["Time Series (Daily)"][date]["3. low"]),
+                    'cierre':
+                    float(json["Time Series (Daily)"][date]["4. close"]),
+                    'volumen':
+                    float(json["Time Series (Daily)"][date]["5. volume"])
+                }
             ))
 
     return output
 
 
-def alphavantage_daily_variable_params(ticker_name):
-    return {'symbol': ticker_name}
+def alphavantage_daily_variable_params(ticker):
+    return {'symbol': ticker}
 
 
 apis = {

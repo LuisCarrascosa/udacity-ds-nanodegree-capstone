@@ -23,7 +23,7 @@ INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("REP.MC", "REPSOL
 INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("XOM", "Exxon Mobil Corp.", "alphavantage_daily", "USD");
 INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("NDAQ", "Nasdaq Inc.", "alphavantage_daily", "USD");
 INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("EEM", "Emerging Markets Ishares MSCI ETF", "alphavantage_daily", "USD");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("DJI", "DOW JONES", "alphavantage_daily", NULL);
+-- INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("DJI", "DOW JONES", "alphavantage_daily", NULL);
 INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ELE.MC", "Endesa, Sociedad Anonima", "alphavantage_daily", "EUR");
 INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("TRE.MDR", "Tecnicas Reunidas, S.A.", "alphavantage_daily", "EUR");
 INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ACX.MC", "Acerinox, S.A.", "alphavantage_daily", "EUR");
@@ -61,7 +61,7 @@ CREATE TABLE market_data (
   FOREIGN KEY (ticker_code) REFERENCES tickers (code)
 );
 
-CREATE INDEX ticker_code ON market_data (ticker_code);
+CREATE UNIQUE INDEX market_data_index ON market_data (ticker_code, fecha);
 
 CREATE TABLE forex_data (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
