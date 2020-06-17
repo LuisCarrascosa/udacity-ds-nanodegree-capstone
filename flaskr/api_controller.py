@@ -2,7 +2,7 @@ import requests
 import flaskr.api_factory as api_factory
 import flaskr.tickers_dao as t_dao
 
-from datetime import datetime
+from datetime import date
 
 
 def call_api(ticker, start_date, end_date):
@@ -12,5 +12,5 @@ def call_api(ticker, start_date, end_date):
     json_data = requests.get(api.url, params=api.get_url_params(ticker)).json()
 
     return api.parser(ticker, json_data, limits=[
-        datetime.strptime(start_date, '%Y-%m-%d'),
-        datetime.strptime(end_date, '%Y-%m-%d')])
+        date.fromisoformat(start_date),
+        date.fromisoformat(end_date)])

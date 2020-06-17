@@ -7,18 +7,19 @@
             <h2>{% block title %}Training interface{% endblock %}</h2>
         </div>
     </div>
-{% endblock %}
-{% block content %}
-    <form action="{{ url_for('training.submit_tickers') }}"
-    href="{{ url_for('training.submit_tickers') }}" 
-    method = "POST">
+    {% endblock %}
+
+    {% block content %}
+    {% if not data_graph %}
+    <form action="{{ url_for('training.submit_tickers') }}" href="{{ url_for('training.submit_tickers') }}"
+        method="POST">
         <div class="row">
             <div class="col">
                 {% for ticker in tickers %}
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="{{ ticker['id'] }}" id="{{ ticker['id'] }}">
                     <label class="form-check-label" for="{{ ticker['id'] }}">
-                    {{ ticker['ticker_name'] }}
+                        {{ ticker['ticker_name'] }}
                     </label>
                 </div>
                 {% endfor %}
@@ -27,18 +28,29 @@
                 <div class="row">
                     <div class="col">
                         <label for="start">Start date</label>
-                        <input type="date" id="start" name="start">
+                        <input type="date" id="start" name="start" value="{{ today_30d }}">
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
                         <label for="end">End date</label>
-                        <input type="date" id="end" name="end">
+                        <input type="date" id="end" name="end" value="{{ today }}">
                     </div>
                 </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <div class="row">
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
     </form>
+    {% else %}
+    <div class="row">
+        <div class="col">
+            <img src='data:image/png;base64,{{ data_graph }}'/>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

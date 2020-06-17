@@ -3,8 +3,11 @@ from flask import (
 )
 from flaskr.auth import login_required
 from flaskr.data import process_tickers
+from flaskr.utils import reduce_data
+from datetime import date, timedelta
 import logging
 import flaskr.tickers_dao as t_dao
+import flaskr.painter as painter
 
 
 bp = Blueprint('training', __name__, url_prefix='/training')
@@ -22,7 +25,9 @@ def index():
 
     return render_template(
         'training/training.html',
-        tickers=tickers
+        tickers=tickers,
+        today_30d=date.today() - timedelta(days=30),
+        today=date.today()
     )
 
 
@@ -44,11 +49,25 @@ def submit_tickers():
 
         tickers_selected.append(t_dao.get_ticker_byId(k))
 
-    # LOG.debug(f"start_date: {start_date}")
-    # LOG.debug(f"end_date: {end_date}")
-    # LOG.debug(f"tickers_selected[0]: {tickers_selected[0]['code']}")
-    # LOG.debug(f"tickers_selected[1]: {tickers_selected[1]['code']}")
+    # dict dfs
+    data = process_tickers(tickers_selected, start_date, end_date)
 
-    process_tickers(tickers_selected, start_date, end_date)
+    df = reduce_data(data, 'cierre')
+    # print(df.head())
+    num_tickers = len(df.columns)
+    if num_tickers <= 2:
+        nrows = 1
+        ncols = num_tickers
+    else:
+        ncols = 2
+        nrows = int(num_tickers/ncols) + 1*(num_tickers % ncols)
 
-    return "pepe"
+    data_graph = painter.drawFeatures_byDict(df, nrows, ncols)
+
+    # with open("grafica.png", "w") as fo:
+    #     fo.write(data_graph)
+
+    return render_template(
+        'training/training.html',
+        data_graph=data_graph
+    )

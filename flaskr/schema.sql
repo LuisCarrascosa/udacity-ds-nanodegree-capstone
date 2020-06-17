@@ -46,8 +46,6 @@ INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ACS.MC", "ACS, A
 INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("0857.HK", "PetroChina Company Limited", "worldtradingdata", "HKD");
 INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ENG.MC", "Enagas, S.A.", "worldtradingdata", "EUR");
 
--- INSERT INTO datetime_int (d1) VALUES(strftime("%s","now"););
--- SELECT datetime(d1,"unixepoch"); FROM datetime_int;
 CREATE TABLE market_data (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   ticker_code TEXT NOT NULL,

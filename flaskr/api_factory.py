@@ -1,35 +1,37 @@
-from datetime import datetime
-from flaskr.app_dto import MarketData
+from datetime import date
+from flaskr.utils import build_df
 
 
 def alphavantage_daily_parser(ticker, json, limits=[]):
-    output = []
+    buffer = {
+        'fecha': [],
+        'apertura': [],
+        'maximo': [],
+        'minimo': [],
+        'cierre': [],
+        'volumen': []
+    }
 
     if len(limits) > 0 and len(limits) != 2:
         return None
 
-    for date in list(json["Time Series (Daily)"]):
-        fecha = datetime.strptime(date, '%Y-%m-%d')
+    for fecha_json in list(json["Time Series (Daily)"]):
+        fecha = date.fromisoformat(fecha_json)
 
         if fecha >= limits[0] and fecha <= limits[1]:
-            output.insert(0, MarketData(
-                {
-                    'ticker_code': ticker,
-                    'fecha': fecha,
-                    'apertura':
-                    float(json["Time Series (Daily)"][date]["1. open"]),
-                    'maximo':
-                    float(json["Time Series (Daily)"][date]["2. high"]),
-                    'minimo':
-                    float(json["Time Series (Daily)"][date]["3. low"]),
-                    'cierre':
-                    float(json["Time Series (Daily)"][date]["4. close"]),
-                    'volumen':
-                    float(json["Time Series (Daily)"][date]["5. volume"])
-                }
-            ))
+            buffer['fecha'].insert(0, fecha)
+            buffer['apertura'].insert(
+                0, float(json["Time Series (Daily)"][fecha_json]["1. open"]))
+            buffer['maximo'].insert(
+                0, float(json["Time Series (Daily)"][fecha_json]["2. high"]))
+            buffer['minimo'].insert(
+                0, float(json["Time Series (Daily)"][fecha_json]["3. low"]))
+            buffer['cierre'].insert(
+                0, float(json["Time Series (Daily)"][fecha_json]["4. close"]))
+            buffer['volumen'].insert(
+                0, float(json["Time Series (Daily)"][fecha_json]["5. volume"]))
 
-    return output
+    return build_df(buffer)
 
 
 def alphavantage_daily_variable_params(ticker):
