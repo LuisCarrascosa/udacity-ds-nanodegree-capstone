@@ -1,24 +1,30 @@
 import pandas as pd
-import datetime
-import pytz
 import requests
 from io import StringIO
+from datetime import datetime, time
 
 
-ticker = 'ELE.MC'
-# https://query1.finance.yahoo.com/v7/finance/download/ELE.MC?period1=1104537600&period2=1593043200&interval=1d&events=history
-fecha_ini = datetime.datetime(2005, 1, 1)
-fecha_fin = datetime.datetime(2020, 6, 26)
+def get_data(tickers, start_date='2000-01-01', end_date=None):
+    data = []
 
-period1 = int(pytz.utc.localize(fecha_ini).timestamp())
-period2 = int(pytz.utc.localize(fecha_fin).timestamp())
+    fecha_ini = datetime.fromisoformat(start_date)
+    fecha_fin = datetime.datetime.now().replace(hour=0, minute=0, second=0)
 
-url = f"https://query1.finance.yahoo.com/v7/finance/download/{ticker}?period1={period1}&period2={period2}&interval=1d&events=history"
-print(url)
+    period1 = int(fecha_ini.timestamp())
+    period2 = int(fecha_fin.timestamp())
 
-html = requests.get(url)
-bytes_data = html.content
-s = str(bytes_data, 'utf-8')
+    url_1 = "https://query1.finance.yahoo.com/v7/finance/download"
+    url_2 = "interval=1d&events=history"
 
-df = pd.read_csv(StringIO(s))
-print(df)
+    for ticker in tickers:
+        url = f"{url_1}/{ticker}?period1={period1}&period2={period2}&{url_2}"
+        # print(url)
+
+        html = requests.get(url)
+        bytes_data = html.content
+        s = str(bytes_data, 'utf-8')
+
+        data[ticker] = pd.read_csv(StringIO(s))
+        time.sleep(2)
+
+    return data

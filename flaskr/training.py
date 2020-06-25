@@ -52,7 +52,7 @@ def submit_tickers():
     # dict dfs
     data = process_tickers(tickers_selected, start_date, end_date)
 
-    df = reduce_data(data, 'cierre')
+    df = reduce_data(data, 'cierre_ajustado')
     # print(df.head())
     num_tickers = len(df.columns)
     if num_tickers <= 2:
