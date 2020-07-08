@@ -15,6 +15,9 @@ def main():
     return render_template(
         'main/main.html',
         opciones=[{
+            "code": "data_aquisition",
+            "description": "Data aquisition"
+        }, {
             "code": "training",
             "description": "Training"
         }, {

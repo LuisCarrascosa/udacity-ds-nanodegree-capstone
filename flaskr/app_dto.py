@@ -9,5 +9,9 @@ class Ticker:
 
         self.ticker_name = data['ticker_name']
         self.code = data['code']
-        self.api = data['api']
         self.currency = data['currency']
+        self.last_date = data['last_date']
+        self.df = None
+
+    def set_data(self, df):
+        self.df = df

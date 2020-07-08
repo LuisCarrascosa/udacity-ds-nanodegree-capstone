@@ -14,41 +14,43 @@ CREATE TABLE tickers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   code TEXT NOT NULL,
   ticker_name TEXT NOT NULL,
-  api TEXT NOT NULL,
   currency TEXT,
+  last_date TEXT NOT NULL DEFAULT '2000-01-01',
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("REP.MC", "REPSOL", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("XOM", "Exxon Mobil Corp.", "yahoo", "USD");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("NDAQ", "Nasdaq Inc.", "yahoo", "USD");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("EEM", "Emerging Markets Ishares MSCI ETF", "yahoo", "USD");
--- INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("DJI", "DOW JONES", "yahoo", NULL);
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ELE.MC", "Endesa, Sociedad Anonima", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("TRE.MC", "Tecnicas Reunidas, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ACX.MC", "Acerinox, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("SPY", "SPDR S&P 500 ETF", "yahoo", "USD");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("MTS.MC", "ArcelorMittal", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("AMS.MC", "Amadeus IT Group, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("COL.MC", "Inmobiliaria Colonial, SOCIMI, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("IBE.MC", "Iberdrola, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("FER.MC", "Ferrovial, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("NTGY.MC", "Naturgy Energy Group, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ITX.MC", "Industria de Diseno Textil, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("CLNX.MC", "Cellnex Telecom, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("VIS.MC", "Viscofan, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("GAZP.ME", "Public Joint Stock Company Gazprom", "yahoo", "RUB");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ROSN.ME", "Public Joint Stock Company Rosneft Oil Company", "yahoo", "RUB");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("CVX", "Chevron Corporation", "yahoo", "USD");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("RDSA.AS", "Royal Dutch Shell Plc", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("TEF.MC", "Telefónica, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ACS.MC", "ACS, Actividades de Construccion y Servicios, S.A.", "yahoo", "EUR");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("0857.HK", "PetroChina Company Limited", "yahoo", "HKD");
-INSERT INTO tickers (code, ticker_name, api, currency) VALUES ("ENG.MC", "Enagas, S.A.", "yahoo", "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("REP.MC", "REPSOL",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("XOM", "Exxon Mobil Corp.",  "USD");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("NDAQ", "Nasdaq Inc.",  "USD");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("EEM", "Emerging Markets Ishares MSCI ETF",  "USD");
+-- INSERT INTO tickers (code, ticker_name, currency) VALUES ("DJI", "DOW JONES",  NULL);
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("ELE.MC", "Endesa, Sociedad Anonima",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("TRE.MC", "Tecnicas Reunidas, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("ACX.MC", "Acerinox, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("SPY", "SPDR S&P 500 ETF",  "USD");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("MTS.MC", "ArcelorMittal",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("AMS.MC", "Amadeus IT Group, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("COL.MC", "Inmobiliaria Colonial, SOCIMI, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("IBE.MC", "Iberdrola, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("FER.MC", "Ferrovial, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("NTGY.MC", "Naturgy Energy Group, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("ITX.MC", "Industria de Diseno Textil, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("CLNX.MC", "Cellnex Telecom, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("VIS.MC", "Viscofan, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("GAZP.ME", "Public Joint Stock Company Gazprom",  "RUB");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("ROSN.ME", "Public Joint Stock Company Rosneft Oil Company",  "RUB");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("CVX", "Chevron Corporation",  "USD");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("RDSA.AS", "Royal Dutch Shell Plc",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("TEF.MC", "Telefónica, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("ACS.MC", "ACS, Actividades de Construccion y Servicios, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("0857.HK", "PetroChina Company Limited",  "HKD");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("ENG.MC", "Enagas, S.A.",  "EUR");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("AAPL", "Apple Inc.", "USD");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("GOOG", "Alphabet Inc.", "USD");
 
 CREATE TABLE market_data (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  ticker_code TEXT NOT NULL,
+  ticker_id INTEGER NOT NULL,
   fecha TEXT NOT NULL, 
   apertura REAL NOT NULL,
   maximo REAL NOT NULL,
@@ -57,10 +59,10 @@ CREATE TABLE market_data (
   cierre_ajustado REAL NOT NULL,
   volumen INTEGER ,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (ticker_code) REFERENCES tickers (code)
+  FOREIGN KEY (ticker_id) REFERENCES tickers (id)
 );
 
-CREATE UNIQUE INDEX market_data_index ON market_data (ticker_code, fecha);
+CREATE UNIQUE INDEX market_data_index ON market_data (ticker_id, fecha);
 
 CREATE TABLE forex_data (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

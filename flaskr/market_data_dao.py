@@ -1,4 +1,6 @@
 from flaskr.db import get_db
+import flaskr.tickers_dao as tickers_dao
+import datetime
 from flaskr.utils import build_df
 
 
@@ -12,6 +14,7 @@ def parse_df(sql_data_list):
         'maximo': [],
         'minimo': [],
         'cierre': [],
+        'cierre_ajustado': [],
         'volumen': [],
         'id': []
     }
@@ -22,46 +25,84 @@ def parse_df(sql_data_list):
         buffer['maximo'].append(sql_data['maximo'])
         buffer['minimo'].append(sql_data['minimo'])
         buffer['cierre'].append(sql_data['cierre'])
+        buffer['cierre_ajustado'].append(sql_data['cierre_ajustado'])
         buffer['volumen'].append(sql_data['volumen'])
         buffer['id'].append(sql_data['id'])
 
     return build_df(buffer)
 
 
-def get_data_byTickerCode(ticker, start_date='2000-01-01', end_date=None):
-    sql = "SELECT id, ticker_code, date(fecha) as fecha,\
-            apertura, maximo, minimo, cierre, volumen, created\
-                FROM market_data WHERE ticker_code = ? AND fecha >= date(?)"
+# fecha, 'REP.MC', 'XOM'
+# "2000-03-24"	"7.91791"	"21.087626"
+# "2000-03-27"	"7.906283"	"20.887152"
+def parse_df_feature(sql_data_list, tickers):
+    if sql_data_list is None or len(sql_data_list) == 0:
+        return None
 
-    if end_date is None:
-        query = ' '.join([sql, 'ORDER BY fecha ASC'])
+    buffer = {'fecha': []}
+    for ticker in tickers:
+        buffer[ticker.code] = []
 
-        return parse_df(get_db().execute(
-            query, (ticker, start_date,)).fetchall()
+    for sql_data in sql_data_list:
+        buffer['fecha'].append(
+            datetime.datetime.strptime(sql_data['fecha'], "%Y-%m-%d")
         )
 
-    query = ' '.join([sql, "AND fecha <= date(?) ORDER BY fecha ASC"])
+        for ticker in tickers:
+            value = sql_data[ticker.code.replace('.', '_')]
 
-    return parse_df(get_db().execute(
-        query, (ticker, start_date, end_date)).fetchall()
-    )
+            if value is None:
+                buffer[ticker.code].append(None)
+            else:
+                buffer[ticker.code].append(float(value))
+
+    return build_df(buffer)
 
 
-# dataframe
-def save_data(df_market, ticker_code):
-    for ix in df_market.index:
+# dataframe: Date, Open, High, Low, Close, Adj Close, Volume
+def save_data(tickers):
+    for ticker in tickers:
+        for ix in ticker.df.index:
+            get_db().execute(
+                "INSERT OR IGNORE INTO market_data \
+                (ticker_id, fecha, apertura, maximo, minimo, cierre, \
+                    cierre_ajustado, volumen) \
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    ticker.id,
+                    ix,
+                    ticker.df['Open'][ix],
+                    ticker.df['High'][ix],
+                    ticker.df['Low'][ix],
+                    ticker.df['Close'][ix],
+                    ticker.df['Adj Close'][ix],
+                    ticker.df['Volume'][ix]
+                )
+            )
+
+        tickers_dao.update_ticker(ticker.id)
+        get_db().commit()
+
+
+def get_data_on_feature(feature, tickers, start_date='2000-01-01',
+                        end_date=None):
+    grp_concat = [
+        f"GROUP_CONCAT(case when md.ticker_id = {ticker.id} then md.{feature} else null end) as '{ticker.code.replace('.', '_')}'"
+        for ticker in tickers]
+
+    query = ''.join([
+        'select date(md.fecha) as fecha, ',
+        ', '.join(grp_concat),
+        " from market_data md where md.ticker_id in (",
+        ", ".join([str(ticker.id) for ticker in tickers]),
+        ") AND date(md.fecha) >= date(?) AND date(md.fecha) <= date(?)",
+        ' group by date(md.fecha)'
+    ])
+
+    print(f"Query: {query}")
+
+    return parse_df_feature(
         get_db().execute(
-            "INSERT OR IGNORE INTO market_data \
-            (ticker_code, fecha, apertura, maximo, minimo, cierre, volumen) \
-                VALUES (?, date(?), ?, ?, ?, ?, ?)",
-            (
-                ticker_code,
-                ix,
-                df_market['apertura'][ix],
-                df_market['maximo'][ix],
-                df_market['minimo'][ix],
-                df_market['cierre'][ix],
-                df_market['volumen'][ix])
+            query, (start_date, end_date,)
+            ).fetchall(), tickers
         )
-
-    get_db().commit()

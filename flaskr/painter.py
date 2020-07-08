@@ -3,13 +3,13 @@ from io import BytesIO
 from matplotlib.figure import Figure
 
 
-def drawFeatures_byDict(df, nrows, ncols, size=[18, 8],
-                        f_ini=None, f_fin=None):
+def drawFeatures_byDict(df, nrows, ncols, f_ini=None, f_fin=None):
     # Generate the figure **without using pyplot**.
-    print(f'nrows: {nrows}, ncols: {ncols}')
-    print(f'f_ini: {f_ini}, f_fin: {f_fin}')
-    print(f'len df.columns: {len(df.columns)}')
-    fig = Figure(figsize=(size[0], size[1]), dpi=100)
+    # print(f'nrows: {nrows}, ncols: {ncols}')
+    # print(f'f_ini: {f_ini}, f_fin: {f_fin}')
+    # [9, 4] 2 graficas
+    # [9, 8] 3
+    fig = Figure(figsize=(9, 3.5*nrows), dpi=200)
 
     i = 1
     for col in df.columns:

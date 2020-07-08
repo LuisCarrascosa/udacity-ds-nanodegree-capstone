@@ -14,7 +14,7 @@ integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07j
 </script>
 <nav>
   <h1>Udacity Data Science Capstone - Luis Carrascosa</h1>
-  <ul class="nav">
+  <ul class="nav justify-content-end">
     {% if g.user %}
       <li class="nav-item"><a class="nav-link disabled" tabindex="-1" aria-disabled="true">{{ g.user['username'] }}</a>
       <li class="nav-item"><a class="nav-link active" href="{{ url_for('auth.logout') }}">Log Out</a>

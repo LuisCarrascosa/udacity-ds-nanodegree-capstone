@@ -2,10 +2,10 @@ from flask import (
     Blueprint, render_template, request
 )
 from flaskr.auth import login_required
-from flaskr.data import process_tickers
-from flaskr.utils import reduce_data
+from flaskr.market_data_dao import get_data_on_feature
 from datetime import date, timedelta
 import logging
+import datetime
 import flaskr.tickers_dao as t_dao
 import flaskr.painter as painter
 
@@ -34,26 +34,30 @@ def index():
 @bp.route('/submit_tickers', methods=['POST'])
 @login_required
 def submit_tickers():
-    start_date = None
-    end_date = None
+    # start_date = None
+    # end_date = None
     tickers_selected = []
 
     for k, v in request.form.items():
+        print(f'{k}, {v}')
+
         if k == 'start':
-            start_date = v
+            start_date = datetime.datetime.strptime(v, "%Y-%m-%d")
             continue
 
         if k == 'end':
-            end_date = v
+            end_date = datetime.datetime.strptime(v, "%Y-%m-%d")
+            continue
+
+        if k == 'feature_select':
+            feature = v
             continue
 
         tickers_selected.append(t_dao.get_ticker_byId(k))
 
-    # dict dfs
-    data = process_tickers(tickers_selected, start_date, end_date)
+    df = get_data_on_feature(feature, tickers_selected, start_date, end_date)
+    print(df.tail())
 
-    df = reduce_data(data, 'cierre_ajustado')
-    # print(df.head())
     num_tickers = len(df.columns)
     if num_tickers <= 2:
         nrows = 1
@@ -62,7 +66,11 @@ def submit_tickers():
         ncols = 2
         nrows = int(num_tickers/ncols) + 1*(num_tickers % ncols)
 
-    data_graph = painter.drawFeatures_byDict(df, nrows, ncols)
+    df.fillna(method='pad', axis=0, inplace=True)
+    # print(df.tail())
+
+    data_graph = painter.drawFeatures_byDict(
+        df, nrows, ncols, f_ini=start_date, f_fin=end_date)
 
     # with open("grafica.png", "w") as fo:
     #     fo.write(data_graph)
