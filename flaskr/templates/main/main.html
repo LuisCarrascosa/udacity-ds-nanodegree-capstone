@@ -1,17 +1,43 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Principal menu{% endblock %}</h1>
+<script type="text/javascript" src="{{ url_for('static', filename='main/client.js') }}"></script>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-xl-12">
+      <h2 class="text-center">Principal menu</h2>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block content %}
-  {% for opcion in opciones %}
-    <article class="post">
-      <a class="action" href="{{ url_for('main.menu_select', id_option=opcion['code']) }}">
-        {{ opcion['description'] }}</a>
-    </article>
-    {% if not loop.last %}
+<div class="container-fluid">
+  <div class="d-flex flex-column">
+    <div class="p-2">
+      <div class="d-flex flex-row">
+        <article class="post"> 
+          <a id="data_aquisition_id" class="action" href="{{ url_for('main.menu_select', id_option='data_aquisition') }}">
+            Data aquisition</a>
+        </article>
+      </div>
       <hr>
-    {% endif %}
-  {% endfor %}
+    </div>
+    <div class="p-2">
+      <article class="post">
+        <a id="training_id" class="action" href="{{ url_for('main.menu_select', id_option='stocks_selection') }}">
+          Training</a>
+      </article>
+      <hr>
+    </div>
+    <div class="p-2">
+      <article class="post">
+        <a id="query_stocks_id" class="action" href="{{ url_for('main.menu_select', id_option='query_stocks') }}">
+          Query stocks</a>
+      </article>
+    </div>
+  </div>
+
+
+</div>
 {% endblock %}

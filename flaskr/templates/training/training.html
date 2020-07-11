@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 
 {% block header %}
+<script type="text/javascript" src="{{ url_for('static', filename='training/validation.js') }}"></script>
 <div class="container-fluid">
-    <div class="row mb-3">
-        <div class="col">
+    <div class="row">
+        <div class="col-xl-12">
             <h2 class="text-center">Training interface</h2>
         </div>
     </div>
@@ -11,74 +12,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid border border-primary">
-    {% if not data_graph %}
-    <form action="{{ url_for('training.submit_tickers') }}" href="{{ url_for('training.submit_tickers') }}"
-        method="POST">
-        <div class="row">
-            <div class="col-3">
-                <div class="form-group row mb-3">
-                    <label class="col-sm-4 col-form-label" for="stock_select">Stock</label>
-                    <div class="col-sm-6">
-                        <select class="custom-select form-control" id="stock_select" name="stock_select" required>
-                            <option selected>Choose...</option>
-                            {% for ticker in tickers %}
-                            <option value="{{ ticker['id'] }}">{{ ticker['ticker_name'] }}</option>
-                            {% endfor %}
-                        </select>
-                        <div class="invalid-feedback">Please, select stock to predict</div>
-                    </div>
-                </div>
-                <div class="form-group row mb-3">
-                    <label class="col-sm-4 col-form-label" for="feature_select">Feature</label>
-                    <div class="col-sm-6">
-                        <select class="custom-select form-control" id="feature_select" name="feature_select" required>
-                            <option selected>Choose...</option>
-                            <option value="apertura">Open</option>
-                            <option value="maximo">High</option>
-                            <option value="minimo">Low</option>
-                            <option value="cierre">Close</option>
-                            <option value="cierre_ajustado">Adj Close</option>
-                        </select>
-                        <div class="invalid-feedback">Please, select a feature</div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="start">Start date</label>
-                        <input type="date" id="start" name="start" value="{{ today_30d }}" min="2000-01-01" max="{{ today }}">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <label for="end">End date</label>
-                        <input type="date" id="end" name="end" value="{{ today }}">
-                    </div>
-                </div>
-            </div>
-            <div class="col-7">
-                {% for ticker in tickers %}
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="{{ ticker['id'] }}" id="{{ ticker['id'] }}">
-                    <label class="form-check-label" for="{{ ticker['id'] }}">
-                        {{ ticker['ticker_name'] }}
-                    </label>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col">
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-        </div>
-    </form>
-    {% else %}
-    <div class="row">
-        <div class="col">
-            <img src='data:image/png;base64,{{ data_graph }}'/>
-        </div>
-    </div>
-    {% endif %}
+<div class="container-fluid">
+    hola
 </div>
 {% endblock %}

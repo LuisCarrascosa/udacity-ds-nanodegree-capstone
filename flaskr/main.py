@@ -18,7 +18,7 @@ def main():
             "code": "data_aquisition",
             "description": "Data aquisition"
         }, {
-            "code": "training",
+            "code": "stocks_selection",
             "description": "Training"
         }, {
             "code": "query_stocks",

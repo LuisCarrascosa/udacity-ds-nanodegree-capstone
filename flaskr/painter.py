@@ -9,7 +9,7 @@ def drawFeatures_byDict(df, nrows, ncols, f_ini=None, f_fin=None):
     # print(f'f_ini: {f_ini}, f_fin: {f_fin}')
     # [9, 4] 2 graficas
     # [9, 8] 3
-    fig = Figure(figsize=(9, 3.5*nrows), dpi=200)
+    fig = Figure(figsize=(6, 2.45*nrows), dpi=200)
 
     i = 1
     for col in df.columns:
