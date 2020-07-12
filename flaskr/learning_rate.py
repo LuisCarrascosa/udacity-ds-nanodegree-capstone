@@ -1,7 +1,4 @@
 import math
-import base64
-from io import BytesIO
-from matplotlib.figure import Figure
 
 
 class TriangularSchedule():
@@ -27,7 +24,7 @@ class TriangularSchedule():
 
 
 class CosineAnnealingSchedule():
-    def __init__(self, min_lr, max_lr, cycle_length):
+    def __init__(self, min_lr, max_lr, cycle_length, inc_fraction):
         """
         min_lr: lower bound for learning rate (float)
         max_lr: upper bound for learning rate (float)
@@ -63,10 +60,13 @@ class CyclicalSchedule():
         cycle_idx = 0
         cycle_length = self.length
         idx = self.length
+
+        print(f"idx: {idx}, iteration: {iteration}, cycle_length: {cycle_length}")
         while idx <= iteration:
             cycle_length = math.ceil(cycle_length * self.length_decay)
             cycle_idx += 1
             idx += cycle_length
+
         cycle_offset = iteration - idx + cycle_length
 
         schedule = self.schedule_class(
@@ -79,11 +79,11 @@ class CyclicalSchedule():
 default_params = {
     "min_lr": 1,
     "max_lr": 2,
-    "num_cycles": 500,
-    "iterations": 1,
+    "num_cycles": 1,
+    "iterations": 500,
     "inc_fraction": 0.5,
     "cycle_length_decay": 1,
-    "cycle_magnitude_decay": 1    
+    "cycle_magnitude_decay": 1
 }
 
 learning_rate_functions = {
@@ -114,53 +114,5 @@ learning_rate_functions = {
     }
 }
 
-
-# (Triangular) Learning rate for each epoch
-def draw_learning_rate(schedule, title, iterations=150):
-    fig = Figure(figsize=(6, 4), dpi=200)
-    axis = fig.add_subplot(1, 1, 1)
-
-    axis.plot(
-        [i+1 for i in range(iterations)],
-        [schedule(i) for i in range(iterations)]
-    )
-
-    axis.grid(True)
-    axis.autoscale_view()
-    axis.set_title(title)
-    axis.set_xlabel("Epoch")
-    axis.set_ylabel("Learning Rate")
-
-    buf = BytesIO()
-    fig.savefig(buf, format="png")
-    # Embed the result in the html output.
-    return base64.b64encode(buf.getbuffer()).decode("ascii")
-
-
 # iterations = 500
 # num_cycles = 3
-
-# TriangularSchedule(min_lr=1, max_lr=2, cycle_length=1000, inc_fraction=0.2)
-# schedule = CyclicalSchedule(
-#     TriangularSchedule,
-#     min_lr=1,
-#     max_lr=2,
-#     cycle_length=int(iterations/num_cycles),
-#     cycle_length_decay=0.8,
-#     cycle_magnitude_decay=0.8,
-#     inc_fraction=0.2
-# )
-
-# draw(schedule, 'learning_TriangularSchedule', iterations)
-
-# CosineAnnealingSchedule(min_lr=1, max_lr=2, cycle_length=1000)
-# schedule1 = CyclicalSchedule(
-#     CosineAnnealingSchedule,
-#     min_lr=1,
-#     max_lr=2,
-#     cycle_length=int(iterations/num_cycles),
-#     cycle_length_decay=0.8,
-#     cycle_magnitude_decay=0.8
-# )
-
-# draw(schedule1, 'learning_CosineAnnealingSchedule', iterations)

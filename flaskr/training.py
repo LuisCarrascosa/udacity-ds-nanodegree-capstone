@@ -2,9 +2,9 @@ from flask import (
     Blueprint, render_template, request, session, jsonify
 )
 from flaskr.auth import login_required
-from datetime import date
+# from datetime import date
 import flaskr.learning_rate as learning_rate
-import flaskr.market_data_dao as data_dao
+import flaskr.painter as painter
 import logging
 import pickle
 
@@ -43,19 +43,44 @@ def _learning_function():
     return jsonify(params=params)
 
 
-@bp.route('/_show_learning_function', methods=['GET'])
+@bp.route('/_show_learning_function', methods=['POST'])
 @login_required
 def _show_learning_function():
-    omas = request.args.get(
-        'form_data',
-        'pepe',
-        type=list
+    data = request.get_json()
+
+    parsed_data = {
+        k: float(v)
+        for (k, v) in data.items()
+        if k != 'learning_rate_function'
+    }
+
+    schedule_function = learning_rate.learning_rate_functions[
+        data["learning_rate_function"]
+        ]["function"]
+
+    schedule_name = learning_rate.learning_rate_functions[
+        data["learning_rate_function"]
+        ]["name"]
+
+    schedule_function = learning_rate.CyclicalSchedule(
+        schedule_function,
+        min_lr=parsed_data["min_lr"],
+        max_lr=parsed_data["max_lr"],
+        cycle_length=int(parsed_data["iterations"]/parsed_data["num_cycles"]),
+        cycle_length_decay=parsed_data["cycle_length_decay"],
+        cycle_magnitude_decay=parsed_data["cycle_magnitude_decay"],
+        inc_fraction=parsed_data["inc_fraction"]
     )
 
-    for oma in omas:
-        print(f"oma: {oma}")
+    graph_title = f"({schedule_name}) Learning rate for each epoch"
 
-    return jsonify(num_cycles=oma)
+    base64_graph = painter.draw_learning_rate(
+        schedule_function,
+        graph_title, int(parsed_data["iterations"]))
+
+    # print(f"base64_graph: {base64_graph}")
+
+    return jsonify(learning_graph=base64_graph)
 
 
 # Hyperparameters related to neural network structure
@@ -107,9 +132,9 @@ def _show_learning_function():
 # activation ReLU, Leaky ReLU, Swish
 # window_len, 80%, output_size, neurons
 # dropout =0.25, loss="mae", optimizer="adam", batch_size=1
-@bp.route('/submit_parameters', methods=['POST'])
+@bp.route('/training', methods=['POST'])
 @login_required
-def submit_parameters():
+def training():
     form_data = pickle.loads(session['form_data'])
 
     return render_template(
@@ -117,6 +142,17 @@ def submit_parameters():
         start_date=form_data['end_date']
     )
 
+
+@bp.route('/save', methods=['POST'])
+@login_required
+def save():
+    form_data = pickle.loads(session['form_data'])
+
+# Volver al inicio
+    return render_template(
+        'training/training.html',
+        start_date=form_data['end_date']
+    )
 
 # from tensorflow.keras import layers
 # from tensorflow.keras import activations

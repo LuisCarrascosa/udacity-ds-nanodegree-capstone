@@ -17,8 +17,8 @@
         <div class="col-xl-8 border border-primary">
             <br>
             <div class="container-fluid">
-                <form action="{{ url_for('training.submit_parameters') }}"
-                    href="{{ url_for('training.submit_parameters') }}" id="form_id" method="POST">
+                <form action="{{ url_for('training.training') }}"
+                    href="{{ url_for('training.training') }}" id="form_id" method="POST">
                     <div class="row">
                         <div id="neural_network_params" class="col-xl-6">
                             <div class="row">
@@ -107,14 +107,8 @@
                             </div>
                             {% endfor %}
                             <div class="row">
-                                <div class="col-xl text-center">
-                                    <br>
-                                    <button id="show_learning_function" type="button" class="btn btn-primary">Show</button>
-                                </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-xl">
-                                    <div style="height: 125px; width:100%; overflow-y: auto;">
+                                    <div id="image_learning_div" style="text-align: center; height: 200px; width:100%; overflow-y: auto;">
                                         {% if learning_graph %}
                                         <img src='data:image/png;base64,{{ learning_graph }}' class="img-fluid" />
                                         {% endif %}
@@ -124,21 +118,25 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-xl-4">
+                        <div class="col-xl-3 text-left">
                             <br>
                             <a class="action" href="{{ url_for('stocks_selection.index') }}">
                                 Volver</a>
                         </div>
-                        <div class="col-xl-4">
+                        <div class="col-xl-3 text-center">
                             <br>
-                            <button type="submit" class="btn btn-primary">Submit data</button>
+                            <button id="show_learning_function" type="button" class="btn btn-primary">Show learning function</button>
                         </div>
-                        <div class="col-xl-4">
+                        <div class="col-xl-3 text-center">
+                            <br>
+                            <button type="submit" class="btn btn-primary">Train model</button>
+                        </div>
+                        <div class="col-xl-3 text-right">
                             <br>
                             {% if data_graph %}
                             <button type="submit" class="btn btn-primary"
-                                formaction="{{ url_for('stocks_selection.training') }}">
-                                Train model
+                                formaction="{{ url_for('training.save') }}">
+                                Save model and return
                             </button>
                             {% endif %}
                         </div>

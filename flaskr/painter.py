@@ -34,3 +34,24 @@ def drawFeatures_byDict(df, nrows, ncols, tickers, f_ini=None, f_fin=None):
     fig.savefig(buf, format="png")
     # Embed the result in the html output.
     return base64.b64encode(buf.getbuffer()).decode("ascii")
+
+
+def draw_learning_rate(schedule, title, iterations=150):
+    fig = Figure(figsize=(6, 2.5), dpi=75)
+    axis = fig.add_subplot(1, 1, 1)
+
+    axis.plot(
+        [i+1 for i in range(iterations)],
+        [schedule(i) for i in range(iterations)]
+    )
+
+    axis.grid(True)
+    axis.autoscale_view()
+    axis.set_title(title)
+    axis.set_xlabel("Epoch")
+    axis.set_ylabel("Learning Rate")
+
+    buf = BytesIO()
+    fig.savefig(buf, format="png")
+    # Embed the result in the html output.
+    return base64.b64encode(buf.getbuffer()).decode("ascii")
