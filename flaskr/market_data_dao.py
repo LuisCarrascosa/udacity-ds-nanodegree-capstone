@@ -1,7 +1,8 @@
 from flaskr.db import get_db
 import flaskr.tickers_dao as tickers_dao
 import datetime
-from flaskr.utils import build_df
+import pandas as pd
+import flaskr.utils as utils
 
 
 def parse_df(sql_data_list):
@@ -29,7 +30,7 @@ def parse_df(sql_data_list):
         buffer['volumen'].append(sql_data['volumen'])
         buffer['id'].append(sql_data['id'])
 
-    return build_df(buffer)
+    return utils.build_df(buffer)
 
 
 # fecha, 'REP.MC', 'XOM'
@@ -56,7 +57,7 @@ def parse_df_feature(sql_data_list, tickers):
             else:
                 buffer[ticker.code].append(float(value))
 
-    return build_df(buffer)
+    return utils.build_df(buffer)
 
 
 # dataframe: Date, Open, High, Low, Close, Adj Close, Volume
@@ -106,3 +107,19 @@ def get_data_on_feature(feature, tickers, start_date='2000-01-01',
             query, (start_date, end_date,)
             ).fetchall(), tickers
         )
+
+
+def drop_dataframe_table(table_name):
+    get_db().execute(f"DROP TABLE {table_name}")
+    get_db().commit()
+
+
+def save_dataframe_table(table_name, df):
+    df.to_sql(
+        table_name, get_db(), if_exists='replace',
+        index=True, index_label='Fecha'
+    )
+
+
+def load_dataframe_table(table_name):
+    return pd.read_sql(f'select * from {table_name}', get_db())

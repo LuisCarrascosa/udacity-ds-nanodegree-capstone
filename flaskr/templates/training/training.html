@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<script type="text/javascript" src="{{ url_for('static', filename='training/validation.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='training/training.js') }}"></script>
 <div class="container-fluid">
     <div class="row">
         <div class="col-xl-12">
@@ -13,6 +13,147 @@
 
 {% block content %}
 <div class="container-fluid">
-    hola
+    <div class="row">
+        <div class="col-xl-8 border border-primary">
+            <br>
+            <div class="container-fluid">
+                <form action="{{ url_for('training.submit_parameters') }}"
+                    href="{{ url_for('training.submit_parameters') }}" id="form_id" method="POST">
+                    <div class="row">
+                        <div id="neural_network_params" class="col-xl-6">
+                            <div class="row">
+                                <div class="col-xl">
+                                    <h4 class="text-center">Neural network structure</h4>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-xl col-form-label" for="number_layers">
+                                    Hidden layers
+                                </label>
+                                <input type="text" class="form-control col-xl" id="number_layers"
+                                value="1" name="number_layers">
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-xl col-form-label" for="dropout">
+                                    Dropout
+                                </label>
+                                <input type="text" class="form-control col-xl" id="dropout" name="dropout" value="0.25">
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-xl col-form-label" for="activation_function">
+                                    Activation function
+                                </label>
+                                <select class="custom-select form-control col-xl" id="activation_function" name="activation_function">
+                                    <option value="relu" selected>ReLU</option>
+                                    <option value="leaky_relu" selected>Leaky ReLU</option>
+                                    <option value="swish" selected>Swish</option>
+                                </select>
+                            </div>
+                            <div class="form-group row"> 
+                                <label class="col-xl col-form-label" for="initial_weights">
+                                    Initial weights
+                                </label>
+                                <select class="custom-select form-control col-xl" id="initial_weights" name="initial_weights">
+                                    <option value="zeros" selected>Zeros</option>
+                                    <option value="ones">Ones</option>
+                                    <option value="random_normal">Random Normal</option>
+                                    <option value="glorot_normal">Glorot Normal</option>
+                                    <option value="glorot_uniform">Glorot Uniform</option>
+                                </select>
+                            </div>
+                            <div class="form-group row"> 
+                                <label class="col-xl col-form-label" for="optimizer_algorithm">
+                                    Optimizer algorithm
+                                </label>
+                                <select class="custom-select form-control col-xl" id="optimizer_algorithm" name="optimizer_algorithm">
+                                    <option value="stochastic_gradient_descent" selected>Stochastic Gradient Descent</option>
+                                    <option value="momentum">Momentum</option>
+                                    <option value="nesterov_accelerated_gradient">Nesterov Accelerated Gradient</option>
+                                    <option value="ada_delta">AdaDelta</option>
+                                    <option value="adam">Adam</option>
+                                </select>
+                            </div>
+                            <div class="form-group row"> 
+                                <label class="col-xl col-form-label" for="batch_size">
+                                    Batch size
+                                </label>
+                                <input type="text" class="form-control col-xl" id="batch_size" name="batch_size" value="1">
+                            </div>
+                        </div>
+                        <div id="learning_rate_params" class="col-xl-6">
+                            <div class="row">
+                                <div class="col-xl">
+                                    <h4 class="text-center">Learning rate params</h4>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-xl col-form-label" for="learning_rate_function">
+                                    Learning rate function
+                                </label>
+                                <select class="custom-select form-control col-xl" id="learning_rate_function" name="learning_rate_function">
+                                    {% for k, v in learning_rates.items() %}
+                                    <option value="{{ k }}" {% if learning_rate_selected==k %} selected{% endif %}>
+                                        {{ v['name'] }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% for k, v in learning_rates['triangular']['params'].items() %}
+                            <div class="form-group row">
+                                <label class="col-xl col-form-label" for="{{ k }}">
+                                    {{ v }}
+                                </label>
+                                <input type="text" class="form-control col-xl" id="{{ k }}" name="{{ k }}" value="{{ default_params[k] }}">
+                            </div>
+                            {% endfor %}
+                            <div class="row">
+                                <div class="col-xl text-center">
+                                    <br>
+                                    <button id="show_learning_function" type="button" class="btn btn-primary">Show</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xl">
+                                    <div style="height: 125px; width:100%; overflow-y: auto;">
+                                        {% if learning_graph %}
+                                        <img src='data:image/png;base64,{{ learning_graph }}' class="img-fluid" />
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-4">
+                            <br>
+                            <a class="action" href="{{ url_for('stocks_selection.index') }}">
+                                Volver</a>
+                        </div>
+                        <div class="col-xl-4">
+                            <br>
+                            <button type="submit" class="btn btn-primary">Submit data</button>
+                        </div>
+                        <div class="col-xl-4">
+                            <br>
+                            {% if data_graph %}
+                            <button type="submit" class="btn btn-primary"
+                                formaction="{{ url_for('stocks_selection.training') }}">
+                                Train model
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-xl-4 border border-primary">
+            <div style="height: 800px; width:100%; overflow-y: auto;">
+                {% if data_graph %}
+                <img src='data:image/png;base64,{{ data_graph }}' class="img-fluid" />
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 {% endblock %}

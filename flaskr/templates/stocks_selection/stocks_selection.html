@@ -53,14 +53,14 @@
                             <div class="form-group row">
                                 <label class="col-xl col-form-label" for="start">Start date</label>
                                 <input class="col-xl" type="date" id="start" name="start" value="{{ start_date }}"
-                                    min="2000-01-01" max="{{ today }}">
+                                    min="{{ min_date }}" max="{{ max_date }}">
                             </div>
                             <div class="form-group row">
                                 <label class="col-xl col-form-label" for="end">End date</label>
                                 <input class="col-xl" type="date" id="end" name="end" value="{{ end_date }}">
                             </div>
                         </div>
-                        <div class="col-xl">
+                        <div class="col-xl-7">
                             <div class="row">
                                 <div class="col-xl">
                                     <h4 class="text-center">Dependent stocks</h4>   
@@ -78,7 +78,7 @@
                                         id="{{ ticker['id'] }}">
                                         {% endif %}
                                         <label class="form-check-label" for="{{ ticker['id'] }}">
-                                            {{ ticker['ticker_name'] }}
+                                            ({{ ticker['currency'] }}) {{ ticker['ticker_name'] }}
                                         </label>
                                     </div>
                                     {% endfor %}
@@ -87,11 +87,19 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-xl">
+                        <div class="col-xl-4">
+                            <br>
+                            <a class="action" href="{{ url_for('main.main') }}">
+                                Volver</a>
+                        </div>
+                        <div class="col-xl-4">
                             <br>
                             <button type="submit" class="btn btn-primary">Submit data</button>
+                        </div>
+                        <div class="col-xl-4">
                             {% if data_graph %}
-                            <button type="submit" class="btn btn-primary" formaction="{{ url_for('training') }}">
+                            <br>
+                            <button type="submit" class="btn btn-primary" formaction="{{ url_for('stocks_selection.training') }}">
                                 Train model
                             </button>
                             {% endif %}

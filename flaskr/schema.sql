@@ -23,14 +23,14 @@ INSERT INTO tickers (code, ticker_name, currency) VALUES ("REP.MC", "REPSOL",  "
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("XOM", "Exxon Mobil Corp.",  "USD");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("NDAQ", "Nasdaq Inc.",  "USD");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("EEM", "Emerging Markets Ishares MSCI ETF",  "USD");
--- INSERT INTO tickers (code, ticker_name, currency) VALUES ("DJI", "DOW JONES",  NULL);
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("%5EDJI", "Dow Jones Industrial Average",  "USD");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("ELE.MC", "Endesa, Sociedad Anonima",  "EUR");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("TRE.MC", "Tecnicas Reunidas, S.A.",  "EUR");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("ACX.MC", "Acerinox, S.A.",  "EUR");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("SPY", "SPDR S&P 500 ETF",  "USD");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("MTS.MC", "ArcelorMittal",  "EUR");
-INSERT INTO tickers (code, ticker_name, currency) VALUES ("AMS.MC", "Amadeus IT Group, S.A.",  "EUR");
-INSERT INTO tickers (code, ticker_name, currency) VALUES ("COL.MC", "Inmobiliaria Colonial, SOCIMI, S.A.",  "EUR");
+-- INSERT INTO tickers (code, ticker_name, currency) VALUES ("AMS.MC", "Amadeus IT Group, S.A.",  "EUR");
+-- INSERT INTO tickers (code, ticker_name, currency) VALUES ("COL.MC", "Inmobiliaria Colonial, SOCIMI, S.A.",  "EUR");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("IBE.MC", "Iberdrola, S.A.",  "EUR");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("FER.MC", "Ferrovial, S.A.",  "EUR");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("NTGY.MC", "Naturgy Energy Group, S.A.",  "EUR");
@@ -47,6 +47,7 @@ INSERT INTO tickers (code, ticker_name, currency) VALUES ("0857.HK", "PetroChina
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("ENG.MC", "Enagas, S.A.",  "EUR");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("AAPL", "Apple Inc.", "USD");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("GOOG", "Alphabet Inc.", "USD");
+INSERT INTO tickers (code, ticker_name, currency) VALUES ("MSFT", "Microsoft Corporation", "USD");
 
 CREATE TABLE market_data (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

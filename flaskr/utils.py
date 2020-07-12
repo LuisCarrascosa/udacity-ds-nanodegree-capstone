@@ -1,6 +1,23 @@
 import pandas as pd
 import datetime
+import pickle
 import flaskr.tickers_dao as t_dao
+import flaskr.market_data_dao as data_dao
+import flaskr.users_dao as users_dao
+
+
+def save_session(session, form_data, df):
+    if 'form_data' in session:
+        session.pop('form_data', None)
+
+    print(f"USUARIO: {session.get('user_id')}")
+    data_dao.save_dataframe_table(
+        users_dao.select_user_byId(session.get('user_id'))['username'],
+        df
+    )
+
+    form_data_serialized = pickle.dumps(form_data)
+    session['form_data'] = form_data_serialized
 
 
 def build_df(buffer):
