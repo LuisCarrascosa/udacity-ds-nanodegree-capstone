@@ -2,11 +2,18 @@ from flask import (
     Blueprint, render_template, request, session, jsonify
 )
 from flaskr.auth import login_required
+from keras.callbacks import LearningRateScheduler
+import flaskr.market_data_dao as data_dao
 # from datetime import date
 import flaskr.learning_rate as learning_rate
 import flaskr.painter as painter
+import flaskr.users_dao as users_dao
+import flaskr.utils as utils
 import logging
 import pickle
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
 
 
 bp = Blueprint('training', __name__, url_prefix='/training')
@@ -20,8 +27,6 @@ LOG = logging.getLogger(__name__)
 @bp.route('/')
 @login_required
 def index():
-    # form_data = pickle.loads(session['form_data'])
-
     return render_template(
         'training/training.html',
         learning_rates=learning_rate.learning_rate_functions,
@@ -46,109 +51,150 @@ def _learning_function():
 @bp.route('/_show_learning_function', methods=['POST'])
 @login_required
 def _show_learning_function():
-    data = request.get_json()
+    data_form = utils.get_training_form(request.get_json())
 
-    parsed_data = {
-        k: float(v)
-        for (k, v) in data.items()
-        if k != 'learning_rate_function'
-    }
+    if "inc_fraction" not in data_form:
+        data_form["inc_fraction"] = 0
 
-    schedule_function = learning_rate.learning_rate_functions[
-        data["learning_rate_function"]
-        ]["function"]
+    schedule_function = utils.get_learning_function(data_form)
 
     schedule_name = learning_rate.learning_rate_functions[
-        data["learning_rate_function"]
-        ]["name"]
-
-    schedule_function = learning_rate.CyclicalSchedule(
-        schedule_function,
-        min_lr=parsed_data["min_lr"],
-        max_lr=parsed_data["max_lr"],
-        cycle_length=int(parsed_data["iterations"]/parsed_data["num_cycles"]),
-        cycle_length_decay=parsed_data["cycle_length_decay"],
-        cycle_magnitude_decay=parsed_data["cycle_magnitude_decay"],
-        inc_fraction=parsed_data["inc_fraction"]
-    )
+        data_form["learning_rate_function"]
+    ]["name"]
 
     graph_title = f"({schedule_name}) Learning rate for each epoch"
 
     base64_graph = painter.draw_learning_rate(
         schedule_function,
-        graph_title, int(parsed_data["iterations"]))
-
-    # print(f"base64_graph: {base64_graph}")
+        graph_title, int(data_form["iterations"]))
 
     return jsonify(learning_graph=base64_graph)
 
 
-# Hyperparameters related to neural network structure
-# 1. Number of hidden layers – adding more hidden layers of neurons
-# generally improves accuracy, to a certain limit which can differ depending
-# on the problem.
-
-# 2. Dropout – what percentage of neurons should be randomly “killed” during
-# each epoch to prevent overfitting.
-
-# 3. Neural network activation function – which function should be used to
-# process the inputs flowing into each neuron. The activation function can
-# impact the network’s ability to converge and learn for different ranges of
-# input values, and also its training speed.
-
-# 4. Weights initialization – it is necessary to set initial weights for the
-# first forward pass. Two basic options are to set weights to zero or to
-# randomize them. However, this can result in a vanishing or exploding
-# gradient, which will make it difficult to train the model. To mitigate this
-# problem, you can use a heuristic (a formula tied to the number of neuron
-# layers) to determine the weights. A common heuristic used for the Tanh
-# activation is called Xavier initialization.
-
-# Hyperparameters related to training algorithm
-# 5. Neural network learning rate – how fast the backpropagation algorithm
-# performs gradient descent. A lower learning rate makes the network train
-# faster but might result in missing the minimum of the loss function.
-
-
-# 6. Deep learning epoch, iterations and batch size – these parameters
-# determine the rate at which samples are fed to the model for training. An
-# epoch is a group of samples which are passed through the model together
-# (forward pass) and then run through backpropagation (backward pass) to
-# determine their optimal weights. If the epoch cannot be run all together
-# due the size of the sample or complexity of the network, it is split into
-# batches, and the epoch is run in two or more iterations. The number of
-# epochs and batches per epoch can significantly affect model fit, as shown
-# below.
-
-# 7. Optimizer algorithm and neural network momentum – when a neural network
-# trains, it uses an algorithm to determine the optimal weights for the model,
-# called an optimizer. The basic option is Stochastic Gradient Descent, but
-# there are other options. Another common algorithm is Momentum, which works
-# by waiting after a weight is updated, and updating it a second time using a
-# delta amount. This speeds up training gradually, with a reduced risk of
-# oscillation. Other algorithms are Nesterov Accelerated Gradient,
-# AdaDelta and Adam.
-
-# activation ReLU, Leaky ReLU, Swish
-# window_len, 80%, output_size, neurons
-# dropout =0.25, loss="mae", optimizer="adam", batch_size=1
 @bp.route('/training', methods=['POST'])
 @login_required
 def training():
-    form_data = pickle.loads(session['form_data'])
+    form_stocks = pickle.loads(session['form_data'])
+    stock = form_stocks['stock_select'].code
+
+    df = data_dao.load_dataframe_table(
+        users_dao.select_user_byId(
+            session.get('user_id')
+        )['username'])
+
+    df.reset_index(inplace=True)
+    df.drop(columns=['Fecha', 'index'], inplace=True)
+
+    print(f'df.isna().sum(): {df.isna().sum()}')
+
+    nrows_training = int(df.shape[0]*0.8)
+
+    training_set = df[df.index < nrows_training]
+    test_set = df[df.index >= nrows_training]
+
+    window_len = int(request.form['window_len'])
+    pred_range = int(request.form['pred_range'])
+
+    LSTM_training_inputs = utils.getInputs(
+        training_set, stock, window_len, pred_range)
+
+    LSTM_training_outputs = utils.getOutputs(
+        training_set, stock, window_len, pred_range)
+
+    LSTM_test_inputs = utils.getInputs(test_set, stock, window_len, pred_range)
+
+    LSTM_test_outputs = utils.getOutputs(
+        test_set, stock, window_len, pred_range)
+
+    LSTM_training_inputs = [
+        np.array(LSTM_training_input)
+        for LSTM_training_input in LSTM_training_inputs
+    ]
+
+    LSTM_training_inputs = np.array(LSTM_training_inputs)
+
+    LSTM_test_inputs = [
+        np.array(LSTM_test_inputs)
+        for LSTM_test_inputs in LSTM_test_inputs
+    ]
+
+    LSTM_test_inputs = np.array(LSTM_test_inputs)
+
+    training_form = utils.get_training_form(request.form)
+
+    if "inc_fraction" not in training_form:
+        training_form["inc_fraction"] = 0
+
+    schedule_function = utils.get_learning_function(training_form)
+
+    epochs = int(training_form['epochs'])
+    neurons = int(training_form['number_neurons'])
+
+    learningRateScheduler = LearningRateScheduler(schedule_function, verbose=0)
+
+    # random seed for reproducibility
+    np.random.seed(42)
+
+    # initialise model architecture
+    lstm_model = utils.build_model(
+        LSTM_training_inputs,
+        output_size=pred_range,
+        neurons=neurons,
+        activ_func=training_form['activation_function'],
+        dropout=training_form['dropout'],
+        optimizer=training_form['optimizer_algorithm']
+    )
+
+    history = lstm_model.fit(
+        LSTM_training_inputs,
+        LSTM_training_outputs,
+        epochs=epochs,
+        batch_size=int(training_form['batch_size']),
+        verbose=2,
+        shuffle=True,
+        validation_data=(LSTM_test_inputs, LSTM_test_outputs),
+        use_multiprocessing=True,
+        callbacks=[learningRateScheduler]
+    )
+
+    df_original = data_dao.load_dataframe_table(
+        users_dao.select_user_byId(
+            session.get('user_id')
+        )['username'])
+
+    test_prediction = painter.draw_test_prediction(
+        df_original,
+        lstm_model,
+        window_len,
+        LSTM_test_inputs,
+        test_set,
+        stock,
+        pred_range
+    )
+
+    # test_prediction = painter.draw_single_timepoint_prediction(
+    #     df_original,
+    #     lstm_model,
+    #     window_len,
+    #     LSTM_test_inputs,
+    #     test_set,
+    #     stock
+    # )
+    lstm_model.save(f"models/{session.get('user_id')}")
 
     return render_template(
         'training/training.html',
-        start_date=form_data['end_date']
+        learning_rates=learning_rate.learning_rate_functions,
+        data_graph=painter.draw_losses(history),
+        test_prediction=test_prediction,
+        default_params=training_form
     )
 
 
 @bp.route('/save', methods=['POST'])
 @login_required
 def save():
-    form_data = pickle.loads(session['form_data'])
-
-# Volver al inicio
+    # Volver al inicio
     return render_template(
         'training/training.html',
         start_date=form_data['end_date']

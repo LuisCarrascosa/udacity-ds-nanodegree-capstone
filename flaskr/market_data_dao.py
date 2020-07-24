@@ -63,6 +63,9 @@ def parse_df_feature(sql_data_list, tickers):
 # dataframe: Date, Open, High, Low, Close, Adj Close, Volume
 def save_data(tickers):
     for ticker in tickers:
+        if ticker.df is None:
+            continue
+
         for ix in ticker.df.index:
             get_db().execute(
                 "INSERT OR IGNORE INTO market_data \

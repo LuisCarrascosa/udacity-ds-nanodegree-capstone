@@ -30,10 +30,10 @@ def index():
         'stocks_selection/stocks_selection.html',
         tickers=tickers,
         # start_date=date.today() - timedelta(days=30),
-        start_date=date(2000, 1, 1),
+        start_date=date(2010, 1, 1),
         end_date=date.today(),
         today=date.today(),
-        min_date=date(2000, 1, 1)
+        min_date=date(2010, 1, 1)
     )
 
 
@@ -92,6 +92,8 @@ def training():
 
     df.fillna(method='pad', axis=0, inplace=True)
     df = fin_utils.get_technical_indicators(df, form_data['stock_select'].code)
+    df.dropna(inplace=True)
+
     utils.save_session(session, form_data, df)
 
     return redirect(url_for("training.index"))

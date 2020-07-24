@@ -27,11 +27,11 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-xl col-form-label" for="number_layers">
-                                    Hidden layers
+                                <label class="col-xl col-form-label" for="number_neurons">
+                                    Neurons
                                 </label>
-                                <input type="text" class="form-control col-xl" id="number_layers"
-                                value="1" name="number_layers">
+                                <input type="text" class="form-control col-xl" id="number_neurons"
+                                value="50" name="number_neurons">
                             </div>
                             <div class="form-group row">
                                 <label class="col-xl col-form-label" for="dropout">
@@ -44,9 +44,10 @@
                                     Activation function
                                 </label>
                                 <select class="custom-select form-control col-xl" id="activation_function" name="activation_function">
-                                    <option value="relu" selected>ReLU</option>
-                                    <option value="leaky_relu" selected>Leaky ReLU</option>
-                                    <option value="swish" selected>Swish</option>
+                                    <option value="tanh" selected>Tanh</option>
+                                    <option value="relu">ReLU</option>
+                                    <option value="leaky_relu">Leaky ReLU</option>
+                                    <option value="swish">Swish</option>
                                 </select>
                             </div>
                             <div class="form-group row"> 
@@ -66,11 +67,11 @@
                                     Optimizer algorithm
                                 </label>
                                 <select class="custom-select form-control col-xl" id="optimizer_algorithm" name="optimizer_algorithm">
-                                    <option value="stochastic_gradient_descent" selected>Stochastic Gradient Descent</option>
-                                    <option value="momentum">Momentum</option>
-                                    <option value="nesterov_accelerated_gradient">Nesterov Accelerated Gradient</option>
-                                    <option value="ada_delta">AdaDelta</option>
+                                    <option value="sgd" selected>SGD</option>
+                                    <option value="rmsprop">RMSprop</option>
                                     <option value="adam">Adam</option>
+                                    <option value="adamax">Adamax</option>
+                                    <option value="ftrl">Ftrl</option>
                                 </select>
                             </div>
                             <div class="form-group row"> 
@@ -78,6 +79,24 @@
                                     Batch size
                                 </label>
                                 <input type="text" class="form-control col-xl" id="batch_size" name="batch_size" value="1">
+                            </div>
+                            <div class="form-group row"> 
+                                <label class="col-xl col-form-label" for="window_len">
+                                    Window size
+                                </label>
+                                <input type="text" class="form-control col-xl" id="window_len" name="window_len" value="10">
+                            </div>
+                            <div class="form-group row"> 
+                                <label class="col-xl col-form-label" for="epochs">
+                                    Epochs
+                                </label>
+                                <input type="text" class="form-control col-xl" id="epochs" name="epochs" value="500">
+                            </div>
+                            <div class="form-group row"> 
+                                <label class="col-xl col-form-label" for="pred_range">
+                                    Prediction range
+                                </label>
+                                <input type="text" class="form-control col-xl" id="pred_range" name="pred_range" value="5">
                             </div>
                         </div>
                         <div id="learning_rate_params" class="col-xl-6">
@@ -129,7 +148,7 @@
                         </div>
                         <div class="col-xl-3 text-center">
                             <br>
-                            <button type="submit" class="btn btn-primary">Train model</button>
+                            <button type="submit" id="train_model" class="btn btn-primary">Train model</button>
                         </div>
                         <div class="col-xl-3 text-right">
                             <br>
@@ -145,10 +164,19 @@
             </div>
         </div>
         <div class="col-xl-4 border border-primary">
-            <div style="height: 800px; width:100%; overflow-y: auto;">
-                {% if data_graph %}
-                <img src='data:image/png;base64,{{ data_graph }}' class="img-fluid" />
-                {% endif %}
+            <div class="row">
+                <div class="col-xl">
+                    {% if data_graph %}
+                    <img src='data:image/png;base64,{{ data_graph }}' class="img-fluid" />
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl">
+                    {% if test_prediction %}
+                    <img src='data:image/png;base64,{{ test_prediction }}' class="img-fluid" />
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

@@ -24,7 +24,7 @@ class TriangularSchedule():
 
 
 class CosineAnnealingSchedule():
-    def __init__(self, min_lr, max_lr, cycle_length, inc_fraction):
+    def __init__(self, min_lr, max_lr, cycle_length, inc_fraction=None):
         """
         min_lr: lower bound for learning rate (float)
         max_lr: upper bound for learning rate (float)
@@ -61,7 +61,6 @@ class CyclicalSchedule():
         cycle_length = self.length
         idx = self.length
 
-        print(f"idx: {idx}, iteration: {iteration}, cycle_length: {cycle_length}")
         while idx <= iteration:
             cycle_length = math.ceil(cycle_length * self.length_decay)
             cycle_idx += 1
@@ -94,7 +93,7 @@ learning_rate_functions = {
             "min_lr": "Minimun learning rate",
             "max_lr": "Maximun learning rate",
             "num_cycles": "Number of cycles",
-            "iterations": "Iterations",
+            "iterations": "Iterations (epochs)",
             "inc_fraction": "Increasing fraction",
             "cycle_length_decay": "Cycle length decay (1 no decay)",
             "cycle_magnitude_decay": "Cycle magnitude decay (1 no decay)"

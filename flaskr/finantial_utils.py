@@ -24,6 +24,4 @@ def get_technical_indicators(df, column):
     # Create Momentum
     df['momentum'] = df[column]-1
 
-    df.dropna(subset=["upper_band"], inplace=True)
-
     return df

@@ -50,4 +50,8 @@ $(document).ready(function () {
             }
           }).done(show_callback);
     });
+
+    $('button#train_model').on('click', function () {
+        document.getElementById("overlay").style.display = "block";
+    });
 });
