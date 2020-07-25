@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<!-- <script type="text/javascript" src="{{ url_for('static', filename='stocks_selection/validation.js') }}"></script> -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-12">
+            <h2 class="text-center">Query stocks</h2>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl border border-primary">
+            <br>
+            <div class="container-fluid">
+                <form action="{{ url_for('stocks_selection.submit_tickers') }}" href="{{ url_for('stocks_selection.submit_tickers') }}"
+                    id= "form_id" method="POST">
+                    <div class="row">
+                        <div class="col-xl">
+                            <div class="row">
+                                <div class="col-xl">
+        x_tickers=x_tickers,
+        y_tickers=y_tickers,
+
+                                    <h4 class="text-center">Model parameters</h4>   
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <p class="text-left">Stocks predicted: {{ feature }}</p>
+                            </div>
+                            <div class="form-group row">
+                                <p class="text-left">Feature predicted: {{ feature }}</p>
+                            </div>
+                            <div class="form-group row">
+                                <p class="text-left">Prediction range: {{ pred_range }}</p>
+                            </div>
+                            <div class="form-group row">
+                                <p class="text-left">Window data: {{ window_len }}</p>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-xl col-form-label" for="end">End training date</label>
+                                <input class="col-xl" type="date" id="end" name="end" value="{{ end_date }}">
+                            </div>
+                        </div>
+                        <div class="col-xl-7">
+                            <div class="row">
+                                <div class="col-xl">
+                                    <h4 class="text-center">Dependent stocks</h4>   
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xl">
+                                    {% for ticker in tickers %}
+                                    <div class="form-check">
+                                        {% if ticker in tickers_selected %}
+                                        <input class="form-check-input" type="checkbox" name="{{ ticker['id'] }}"
+                                            id="{{ ticker['id'] }}" checked=true>
+                                        {% else %}
+                                        <input class="form-check-input" type="checkbox" name="{{ ticker['id'] }}"
+                                        id="{{ ticker['id'] }}">
+                                        {% endif %}
+                                        <label class="form-check-label" for="{{ ticker['id'] }}">
+                                            ({{ ticker['currency'] }}) {{ ticker['ticker_name'] }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-4">
+                            <br>
+                            <a class="action" href="{{ url_for('main.main') }}">
+                                Volver</a>
+                        </div>
+                        <div class="col-xl-4">
+                            <br>
+                            <button type="submit" class="btn btn-primary">Submit data</button>
+                        </div>
+                        <div class="col-xl-4">
+                            {% if data_graph %}
+                            <br>
+                            <button type="submit" class="btn btn-primary" formaction="{{ url_for('stocks_selection.training') }}">
+                                Train model
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-xl border border-primary">
+            <div style="height: 800px; width:100%; overflow-y: auto;">
+                {% if data_graph %}
+                <img src='data:image/png;base64,{{ data_graph }}' class="img-fluid"/>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

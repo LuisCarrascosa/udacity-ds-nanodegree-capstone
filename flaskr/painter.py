@@ -3,7 +3,6 @@ import base64
 import numpy as np
 from io import BytesIO
 from matplotlib.figure import Figure
-from datetime import datetime
 
 
 # title(dataset.columns[group], y=0.5, loc='right')

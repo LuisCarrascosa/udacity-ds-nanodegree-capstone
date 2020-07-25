@@ -33,7 +33,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import auth, db, main, stocks_selection, training, data_aquisition
+    from . import auth, db, main, stocks_selection, training, \
+        data_aquisition, query_stocks
+
     app.register_blueprint(auth.bp)
     db.init_app(app)
 
@@ -48,5 +50,8 @@ def create_app(test_config=None):
 
     app.register_blueprint(training.bp)
     app.add_url_rule('/training', endpoint='training')
+
+    app.register_blueprint(query_stocks.bp)
+    app.add_url_rule('/query_stocks', endpoint='query_stocks')
 
     return app

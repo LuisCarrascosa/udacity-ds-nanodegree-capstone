@@ -8,12 +8,11 @@ import flaskr.market_data_dao as data_dao
 import flaskr.learning_rate as learning_rate
 import flaskr.painter as painter
 import flaskr.users_dao as users_dao
+import flaskr.model_data_dao as model_dao
 import flaskr.utils as utils
 import logging
 import pickle
 import numpy as np
-import tensorflow as tf
-from tensorflow import keras
 
 
 bp = Blueprint('training', __name__, url_prefix='/training')
@@ -180,7 +179,21 @@ def training():
     #     test_set,
     #     stock
     # )
+
     lstm_model.save(f"models/{session.get('user_id')}")
+
+    feature = form_stocks['feature']
+    last_fecha = list(df_original["Fecha"])[-1].date().strftime("%Y-%m-%d")
+
+    model_dao.save_model_data(
+        [stck_sel.id for stck_sel in form_stocks['tickers_selected']],
+        [int(form_stocks['stock_select'].id)],
+        window_len,
+        pred_range,
+        feature,
+        last_fecha,
+        int(session.get('user_id'))
+    )
 
     return render_template(
         'training/training.html',
@@ -189,37 +202,3 @@ def training():
         test_prediction=test_prediction,
         default_params=training_form
     )
-
-
-@bp.route('/save', methods=['POST'])
-@login_required
-def save():
-    # Volver al inicio
-    return render_template(
-        'training/training.html',
-        start_date=form_data['end_date']
-    )
-
-# from tensorflow.keras import layers
-# from tensorflow.keras import activations
-# import tensorflow as tf
-
-# model.add(layers.Dense(64))
-# model.add(layers.Activation(tf.keras.activations.swish))
-# model.add(layers.Activation(tf.nn.))
-
-# def create_model():
-#     lstm_model = Sequential()
-#     # (batch_size, timesteps, data_dim)
-#     lstm_model.add(LSTM(100, batch_input_shape=(BATCH_SIZE, TIME_STEPS, x_t.shape[2]),
-#                         dropout=0.0, recurrent_dropout=0.0, stateful=True, return_sequences=True,
-#                         kernel_initializer='random_uniform'))
-#     lstm_model.add(Dropout(0.4))
-#     lstm_model.add(LSTM(60, dropout=0.0))
-#     lstm_model.add(Dropout(0.4))
-#     lstm_model.add(Dense(20,activation='relu'))
-#     lstm_model.add(Dense(1,activation='sigmoid'))
-#     optimizer = optimizers.RMSprop(lr=params["lr"])
-#     # optimizer = optimizers.SGD(lr=0.000001, decay=1e-6, momentum=0.9, nesterov=True)
-#     lstm_model.compile(loss='mean_squared_error', optimizer=optimizer)
-#     return lstm_model

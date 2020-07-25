@@ -28,9 +28,23 @@ def get_ticker_byId(id):
     ).fetchone())
 
 
+def get_tickers_inIds(ids):
+    sql_custom = ''.join([
+        sql,
+        "WHERE id in (",
+        ', '.join(ids),
+        ")"
+    ])
+
+    return [
+        Ticker(row)
+        for row in get_db().execute(sql_custom).fetchall()
+    ]
+
+
 def get_ticker_byCode(code):
     return Ticker(get_db().execute(
-        f'{sql} WHERE code = ?', (code,)
+        f'{sql} WHERE id in ?', (code,)
     ).fetchone())
 
 

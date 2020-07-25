@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import sqlite3
+from tensorflow import keras
 
 
 def create_connection(db_file):
@@ -83,39 +84,60 @@ def printDf(df):
     print(df.tail(2))
 
 
+def getLastInput(data_set, stock, window_len):
+    buffer = []
+    cols = [col for col in list(data_set) if col != stock]
+
+    temp_set = data_set[len(data_set) - window_len:][cols].copy()
+
+    for col in list(temp_set):
+        temp_set.loc[:, col] = temp_set[col]/temp_set[col].iloc[0] - 1
+
+    buffer.append(np.array(temp_set))
+
+    return np.array(buffer)
+
+
+stock = "REP.MC"
+window_len = 10
+# pred_range = 5
+
 db = create_connection("./instance/flaskr.sqlite")
 df_0 = pd.read_sql('select * from luis', db)
 db.close()
 
-# df_0.index = df_0["Fecha"]
-df_0.drop(['Fecha'], axis=1, inplace=True)
-# values = df_0.values
+print(list(df_0["Fecha"])[-1].date().strftime("%Y-%m-%d"))
+# print(df_0[len(df_0) - window_len:][stock])
 
-stock = "REP.MC"
-window_len = 10
-pred_range = 5
+# df_0.reset_index(inplace=True)
+# df_0.drop(columns=['Fecha', 'index'], inplace=True)
 
-# print(df_0.tail(20))
-print(df_0[stock][0])
+# last_input = getLastInput(df_0, stock, window_len)
+# model = keras.models.load_model('/home/luis/git/udacity-ds-nanodegree-capstone/models/1')
+# print(model.summary())
+# output_predicted = model.predict(last_input)
+# r = df_0[len(df_0) - window_len:][stock].copy().iloc[0]
+# print(r)
+# output_predicted_unscaled = (output_predicted + 1) * r
+# print(output_predicted_unscaled)
 
-print(df_0.shape)
-inputs = getInputs(df_0, stock, window_len, pred_range)
+# 2702 2020-07-20   7.874
+# 2703 2020-07-21   7.928
+# 2704 2020-07-22   7.670
 
-print(inputs[:-pred_range])
+# 2695    7.624
+# 2696    7.784
+# 2697    7.986
+# 2698    7.906
+# 2699    8.014
+# 2700    7.874
+# 2701    7.874
+# 2702    7.874
+# 2703    7.928
+# 2704    7.670
 
-# print(f"0 input: {inputs[0]}")
-# print(f"1 input: {inputs[1]}")
-# print(f"-5 input: {inputs[-5]}")
-# print(f"-2 input: {inputs[-2]}")
-# print(f"-1 input: {inputs[-1]}")
+# Fecha	        Abrir	Máx.	Mín.	Cierre*	    Cierre ajus.**	Volumen
+# 24 jul. 2020	7,50	7,54	7,39	7,39	    7,39	        7.528.641
+# 23 jul. 2020	7,87	7,87	7,53	7,58	    7,58	        6.492.829
 
-# print(f"len inputs: {len(inputs)}")
-# print(f"shape inputs: {inputs[0].shape}")
-
-# outputs = getOutputs(df_0, stock, window_len, pred_range)
-# # outputs = getOutputs1(df_0, stock, window_len, pred_range)
-# # print(f"shape outputs: {outputs.shape}")
-# print(f"0 output: {outputs[0]}")
-# print(f"1 output: {outputs[1]}")
-# print(f"-2 output: {outputs[-2]}")
-# print(f"-1 output: {outputs[-1]}")
+# 22 jul. 2020	7,85	7,92	7,64	7,67	    7,67	        7.345.795

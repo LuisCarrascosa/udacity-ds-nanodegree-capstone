@@ -19,6 +19,27 @@ CREATE TABLE tickers (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE models_data (
+  id INTEGER PRIMARY KEY,
+  pred_range INTEGER NOT NULL,
+  window_len INTEGER NOT NULL,
+  feature TEXT NOT NULL,
+  fecha TEXT NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+); 
+
+CREATE TABLE models_x_tickers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  models_id INTEGER NOT NULL,
+  ticker_id INTEGER NOT NULL,
+  ticker_type TEXT NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (ticker_id) REFERENCES tickers (id),
+  FOREIGN KEY (models_id) REFERENCES models_data (id)
+);
+
+CREATE INDEX models_id ON models_x_tickers (models_id);
+
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("REP.MC", "REPSOL",  "EUR");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("XOM", "Exxon Mobil Corp.",  "USD");
 INSERT INTO tickers (code, ticker_name, currency) VALUES ("NDAQ", "Nasdaq Inc.",  "USD");

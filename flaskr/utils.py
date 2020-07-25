@@ -141,20 +141,3 @@ def get_learning_function(data_dict):
         cycle_magnitude_decay=data_dict["cycle_magnitude_decay"],
         inc_fraction=data_dict["inc_fraction"]
     )
-
-
-# dict dfs
-def reduce_data(data, feature):
-    df_list = []
-
-    for (stock, df) in data.items():
-        to_drop = [col for col in df.columns if col != feature]
-
-        df_list.append(
-            df.drop(to_drop, axis=1).rename(columns={feature: stock})
-        )
-
-    if len(df_list) == 1:
-        return df_list[0]
-
-    return df_list[0].join(df_list[1:], how='outer')

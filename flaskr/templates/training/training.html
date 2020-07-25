@@ -153,10 +153,8 @@
                         <div class="col-xl-3 text-right">
                             <br>
                             {% if data_graph %}
-                            <button type="submit" class="btn btn-primary"
-                                formaction="{{ url_for('training.save') }}">
-                                Save model and return
-                            </button>
+                            <a class="action" href="{{ url_for('main.main') }}">
+                                Finish training</a>
                             {% endif %}
                         </div>
                     </div>
