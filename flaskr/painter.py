@@ -75,56 +75,61 @@ def draw_losses(model_history):
     return base64.b64encode(buf.getbuffer()).decode("ascii")
 
 
+def draw_prediction(model, last_i, pred_range, r_scale, X_news, Y_news, LSTM_input):
+    fig = Figure(figsize=(6, 3), dpi=200)
+    axis = fig.add_subplot(1, 1, 1)
+
+    prediction = (model.predict(LSTM_input) + 1) * r_scale
+
+    axis.plot(X_news.index, Y_news, label='Present')
+
+    axis.plot(
+        [
+            x for x in range(last_i + 1, last_i + pred_range + 1)
+        ],
+        prediction[0], label='Prediction')
+
+    axis.legend()
+    axis.grid(b=True)
+    axis.autoscale_view()
+    fig.tight_layout(pad=0.5)
+
+    buf = BytesIO()
+    fig.savefig(buf, format="png")
+    return base64.b64encode(buf.getbuffer()).decode("ascii")
+
+
 def draw_test_prediction(
-    df_original, model, window_len, LSTM_test_inputs,
-    test_set, stock, pred_range
+    df_original, model, window_len, LSTM_x_df_test_frames,
+    y_df, LSTM_y_df_test_frames, stock, pred_range, nrows_training
 ):
-
-    predictions = (
-        (model.predict(LSTM_test_inputs)[:][::pred_range] + 1)
-        *
-        test_set[stock].values[:-(window_len + pred_range)][::pred_range]
-        .reshape(
-            int(np.ceil((len(LSTM_test_inputs) - pred_range)/float(pred_range)) + 1),
-            1
-        )
-    )
-
     fig = Figure(figsize=(6, 3), dpi=200)
     axis = fig.add_subplot(1, 1, 1)
     axis.plot(
-        [
-            df_original.loc[ipos, 'Fecha']
-            for ipos in test_set.index[window_len:]
-        ],
-        test_set[stock][window_len:], label='Actual'
+        df_original.iloc[y_df[nrows_training:].index]['Fecha'],
+        df_original.iloc[y_df[nrows_training:].index][stock], label='Actual'
     )
 
-    axis.plot(
-        [
-            df_original.loc[ipos, 'Fecha']
-            for ipos in test_set.index[window_len+1:][::pred_range]
-        ],
-        predictions,
-        label=f'Predicted {pred_range} days'
-    )
+    LSTM_y_df_predict_frames = model.predict(LSTM_x_df_test_frames)
 
-    # axis.annotate('MAE: %.4f' % np.mean(
-    #     np.abs((np.transpose(
-    #         model.predict(LSTM_test_inputs)
-    #     )+1)-(
-    #         test_set[stock].values[window_len:]
-    #     )/(test_set[stock].values[:-window_len]))
-    # ),
-    #     xy=(0.75, 0.9),
-    #     xycoords='axes fraction',
-    #     xytext=(0.75, 0.9),
-    #     textcoords='axes fraction')
+    step = window_len  # + pred_range
+    for i in range(0, LSTM_y_df_predict_frames.shape[0], step):
+        y_preds = []
+        for y_pred in LSTM_y_df_predict_frames[i]:
+            y_preds.append(
+                y_df[i + nrows_training] * (y_pred + 1)
+            )
+
+        axis.plot(
+            df_original.iloc[y_df[i+nrows_training:i+nrows_training+pred_range].index]['Fecha'],
+            np.array(y_preds),
+            label=f'Predicted {pred_range} days'
+        )
 
     axis.set_title('Test Set: Prediction', fontsize=10)
     axis.tick_params(axis='x', labelrotation=45, labelsize=8)
     axis.set_ylabel(f'{stock}', fontsize=8)
-    axis.legend(prop={'size': 9})
+    # axis.legend(prop={'size': 9})
     axis.grid(b=True)
     axis.autoscale_view()
     fig.tight_layout(pad=0.5)

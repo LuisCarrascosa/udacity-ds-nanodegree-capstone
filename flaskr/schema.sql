@@ -95,8 +95,7 @@ CREATE TABLE forex_data (
   maximo REAL NOT NULL,
   minimo REAL NOT NULL,
   cierre REAL NOT NULL,
-  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (fecha) REFERENCES market_data (fecha)
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX currency_from ON forex_data (currency_from);

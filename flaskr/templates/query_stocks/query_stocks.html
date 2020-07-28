@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<!-- <script type="text/javascript" src="{{ url_for('static', filename='stocks_selection/validation.js') }}"></script> -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-12">
+            <h2 class="text-center">Query stocks</h2>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl border border-primary">
+            <br>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-xl">
+                        <div class="row">
+                            <div class="col-xl">
+                                <h4 class="text-center">Model parameters</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl">
+                                <p class="text-left">Feature predicted: {{ feature }}</p>
+                                <p class="text-left">Prediction range: {{ pred_range }}</p>
+                                <p class="text-left">Window data: {{ window_len }}</p>
+                                <p class="text-left">End training date: {{ last_fecha }}</p>
+                                <p class="text-left">Stocks to predict:</p>
+                        {% for y_ticker in y_tickers %}
+                                ({{ y_ticker['currency'] }}) {{ y_ticker['ticker_name'] }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-xl-7">
+                        <div class="row">
+                            <div class="col-xl">
+                                <h4 class="text-center">X stocks</h4>
+                            </div>
+                        </div>
+                        {% for x_ticker in x_tickers %}
+                        <div class="row">
+                            <div class="col-xl">
+                                ({{ x_ticker['currency'] }}) {{ x_ticker['ticker_name'] }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xl-4">
+                        <br>
+                        <a class="action" href="{{ url_for('main.main') }}">
+                            Volver</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl border border-primary">
+            <div style="height: 800px; width:100%; overflow-y: auto;">
+                {% if predicted_graph %}
+                <img src='data:image/png;base64,{{ predicted_graph }}' class="img-fluid" />
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

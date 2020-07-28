@@ -31,8 +31,8 @@ def get_ticker_byId(id):
 def get_tickers_inIds(ids):
     sql_custom = ''.join([
         sql,
-        "WHERE id in (",
-        ', '.join(ids),
+        " WHERE id in (",
+        ", ".join(ids),
         ")"
     ])
 

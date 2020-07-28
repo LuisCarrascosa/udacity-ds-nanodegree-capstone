@@ -13,6 +13,7 @@ import flaskr.utils as utils
 import logging
 import pickle
 import numpy as np
+import pandas as pd
 
 
 bp = Blueprint('training', __name__, url_prefix='/training')
@@ -75,6 +76,8 @@ def _show_learning_function():
 def training():
     form_stocks = pickle.loads(session['form_data'])
     stock = form_stocks['stock_select'].code
+    window_len = int(request.form['window_len'])
+    pred_range = int(request.form['pred_range'])
 
     df = data_dao.load_dataframe_table(
         users_dao.select_user_byId(
@@ -82,42 +85,38 @@ def training():
         )['username'])
 
     df.reset_index(inplace=True)
-    df.drop(columns=['Fecha', 'index'], inplace=True)
 
-    print(f'df.isna().sum(): {df.isna().sum()}')
+    resto = len(df) % (window_len + pred_range)
+    df.drop([row for row in range(0, resto)], axis=0, inplace=True)
 
-    nrows_training = int(df.shape[0]*0.8)
+    df_rows = len(df)
+    df.index = pd.RangeIndex(start=0, stop=df_rows, step=1)
+    df_original = df.copy()
 
-    training_set = df[df.index < nrows_training]
-    test_set = df[df.index >= nrows_training]
+    df.drop(['Fecha'], axis=1, inplace=True)
 
-    window_len = int(request.form['window_len'])
-    pred_range = int(request.form['pred_range'])
+    y_df = df[stock]
+    x_df = df.drop([stock], axis=1, inplace=False)
 
-    LSTM_training_inputs = utils.getInputs(
-        training_set, stock, window_len, pred_range)
+    x_df_frames, y_df_frames = utils.get_frames(
+        x_df, y_df, window_len, pred_range)
 
-    LSTM_training_outputs = utils.getOutputs(
-        training_set, stock, window_len, pred_range)
+    rate = 0.8
+    nrows_training = int(len(x_df_frames)*rate)
+    df_x_training_frames = x_df_frames[0:nrows_training]
+    df_x_test_frames = x_df_frames[nrows_training:]
 
-    LSTM_test_inputs = utils.getInputs(test_set, stock, window_len, pred_range)
+    df_y_training_frames = y_df_frames[0:nrows_training]
+    df_y_test_frames = y_df_frames[nrows_training:]
 
-    LSTM_test_outputs = utils.getOutputs(
-        test_set, stock, window_len, pred_range)
+    LSTM_x_df_training_frames, LSTM_x_df_test_frames = utils.x_to_LSTM(
+        df_x_training_frames, df_x_test_frames)
 
-    LSTM_training_inputs = [
-        np.array(LSTM_training_input)
-        for LSTM_training_input in LSTM_training_inputs
-    ]
+    LSTM_y_df_training_frames, LSTM_y_df_test_frames = utils.y_to_LSTM(
+        df_y_training_frames, df_y_test_frames)
 
-    LSTM_training_inputs = np.array(LSTM_training_inputs)
-
-    LSTM_test_inputs = [
-        np.array(LSTM_test_inputs)
-        for LSTM_test_inputs in LSTM_test_inputs
-    ]
-
-    LSTM_test_inputs = np.array(LSTM_test_inputs)
+    # print(LSTM_x_df_training_frames[0].shape)
+    # print(LSTM_y_df_training_frames.shape)
 
     training_form = utils.get_training_form(request.form)
 
@@ -136,7 +135,7 @@ def training():
 
     # initialise model architecture
     lstm_model = utils.build_model(
-        LSTM_training_inputs,
+        LSTM_x_df_training_frames,
         output_size=pred_range,
         neurons=neurons,
         activ_func=training_form['activation_function'],
@@ -145,30 +144,32 @@ def training():
     )
 
     history = lstm_model.fit(
-        LSTM_training_inputs,
-        LSTM_training_outputs,
+        LSTM_x_df_training_frames,
+        LSTM_y_df_training_frames,
         epochs=epochs,
         batch_size=int(training_form['batch_size']),
         verbose=2,
         shuffle=True,
-        validation_data=(LSTM_test_inputs, LSTM_test_outputs),
+        validation_data=(LSTM_x_df_test_frames, LSTM_y_df_test_frames),
         use_multiprocessing=True,
         callbacks=[learningRateScheduler]
     )
 
-    df_original = data_dao.load_dataframe_table(
-        users_dao.select_user_byId(
-            session.get('user_id')
-        )['username'])
+    # df_original = data_dao.load_dataframe_table(
+    #     users_dao.select_user_byId(
+    #         session.get('user_id')
+    #     )['username'])
 
     test_prediction = painter.draw_test_prediction(
         df_original,
         lstm_model,
         window_len,
-        LSTM_test_inputs,
-        test_set,
+        LSTM_x_df_test_frames,
+        y_df,
+        LSTM_y_df_test_frames,
         stock,
-        pred_range
+        pred_range,
+        nrows_training
     )
 
     # test_prediction = painter.draw_single_timepoint_prediction(
@@ -185,9 +186,16 @@ def training():
     feature = form_stocks['feature']
     last_fecha = list(df_original["Fecha"])[-1].date().strftime("%Y-%m-%d")
 
+    stock_select = form_stocks['stock_select']
+
+    tickers_selected = [
+        ticker for ticker in form_stocks['tickers_selected']
+        if int(ticker.id) != int(stock_select.id)
+        ]
+
     model_dao.save_model_data(
-        [stck_sel.id for stck_sel in form_stocks['tickers_selected']],
-        [int(form_stocks['stock_select'].id)],
+        tickers_selected,
+        [int(stock_select.id)],
         window_len,
         pred_range,
         feature,

@@ -1,10 +1,14 @@
 from flask import (
-    Blueprint, render_template, request, session, jsonify
+    Blueprint, render_template, session
 )
 from flaskr.auth import login_required
 from tensorflow import keras
 import flaskr.model_data_dao as model_dao
 import flaskr.tickers_dao as t_dao
+import flaskr.painter as painter
+import flaskr.utils as utils
+import flaskr.users_dao as users_dao
+import flaskr.market_data_dao as data_dao
 import logging
 
 bp = Blueprint('query_stocks', __name__, url_prefix='/query_stocks')
@@ -25,7 +29,24 @@ def index():
     feature = user_model_data['feature']
     fecha = user_model_data['fecha']
 
-    # model = keras.models.load_model(f"models/{session.get('user_id')}")
+    df = data_dao.load_dataframe_table(
+        users_dao.select_user_byId(
+            session.get('user_id')
+        )['username'])
+
+    last_i, r_scale, X_news, Y_news, LSTM_input = utils.getInput(
+        df, y_tickers[0].code, window_len, pred_range, fecha)
+
+    model = keras.models.load_model(f"models/{session.get('user_id')}")
+
+    predicted_graph = painter.draw_prediction(
+        model,
+        last_i,
+        pred_range,
+        r_scale[y_tickers[0].code],
+        X_news,
+        Y_news,
+        LSTM_input)
 
     return render_template(
         'query_stocks/query_stocks.html',
@@ -33,11 +54,7 @@ def index():
         y_tickers=y_tickers,
         window_len=window_len,
         pred_range=pred_range,
-        feature=feature,
-        last_fecha=fecha
+        feature=utils.get_feature_description(feature),
+        last_fecha=fecha,
+        predicted_graph=predicted_graph
     )
-
-
-# @bp.route('/submit_tickers', methods=['POST'])
-# @login_required
-# def submit_tickers():

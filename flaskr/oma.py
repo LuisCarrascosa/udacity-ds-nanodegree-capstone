@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import datetime
 import sqlite3
 from tensorflow import keras
 
@@ -8,30 +9,6 @@ def create_connection(db_file):
     db = sqlite3.connect(db_file, detect_types=sqlite3.PARSE_DECLTYPES)
     db.row_factory = sqlite3.Row
     return db
-
-
-def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
-    n_vars = 1 if type(data) is list else data.shape[1]
-    df = pd.DataFrame(data)
-    cols, names = list(), list()
-    # input sequence (t-n, ... t-1)
-    for i in range(n_in, 0, -1):
-        cols.append(df.shift(i))
-        names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
-    # forecast sequence (t, t+1, ... t+n)
-    for i in range(0, n_out):
-        cols.append(df.shift(-i))
-        if i == 0:
-            names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
-        else:
-            names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
-    # put it all together
-    agg = pd.concat(cols, axis=1)
-    agg.columns = names
-    # drop rows with NaN values
-    if dropnan:
-        agg.dropna(inplace=True)
-    return agg
 
 
 def getInputs(data_set, stock, window_len, pred_range):
@@ -72,7 +49,8 @@ def getOutputs(data_set, stock, window_len, pred_range):
     for i in range(window_len + 1, len(data_set[stock]) - pred_range + 1):
         LSTM_training_outputs.append(
             (
-                data_set[stock][i:i+pred_range].values/data_set[stock].values[i-window_len]
+                data_set[stock][i:i+pred_range].values /
+                data_set[stock].values[i-window_len]
             )-1
         )
 
@@ -98,46 +76,55 @@ def getLastInput(data_set, stock, window_len):
     return np.array(buffer)
 
 
-stock = "REP.MC"
-window_len = 10
-# pred_range = 5
+def getInput(df, stock, window_len, pred_range, fecha):
+    LSTM_input = []
 
-db = create_connection("./instance/flaskr.sqlite")
-df_0 = pd.read_sql('select * from luis', db)
-db.close()
+    last_i = df[df['Fecha'] == fecha].index[0]
 
-print(list(df_0["Fecha"])[-1].date().strftime("%Y-%m-%d"))
-# print(df_0[len(df_0) - window_len:][stock])
+    X_news = df[df['Fecha'] >= fecha]['Fecha']
+    Y_news = df[df['Fecha'] >= fecha][stock]
 
-# df_0.reset_index(inplace=True)
-# df_0.drop(columns=['Fecha', 'index'], inplace=True)
+    df.drop(['Fecha'], axis=1, inplace=True)
+    x_set = df.iloc[last_i-window_len+1:last_i+1].copy()
 
-# last_input = getLastInput(df_0, stock, window_len)
-# model = keras.models.load_model('/home/luis/git/udacity-ds-nanodegree-capstone/models/1')
-# print(model.summary())
-# output_predicted = model.predict(last_input)
-# r = df_0[len(df_0) - window_len:][stock].copy().iloc[0]
-# print(r)
-# output_predicted_unscaled = (output_predicted + 1) * r
-# print(output_predicted_unscaled)
+    r_scale = dict()
+    for col in list(x_set):
+        r_scale[col] = x_set[col].iloc[0]
+        x_set.loc[:, col] = x_set[col]/r_scale[col] - 1
 
-# 2702 2020-07-20   7.874
-# 2703 2020-07-21   7.928
-# 2704 2020-07-22   7.670
+    x_set.drop([stock], axis=1, inplace=True)
+    LSTM_input.append(np.array(x_set))
 
-# 2695    7.624
-# 2696    7.784
-# 2697    7.986
-# 2698    7.906
-# 2699    8.014
-# 2700    7.874
-# 2701    7.874
-# 2702    7.874
-# 2703    7.928
-# 2704    7.670
+    return last_i, r_scale, X_news, Y_news, np.array(LSTM_input)
 
-# Fecha	        Abrir	Máx.	Mín.	Cierre*	    Cierre ajus.**	Volumen
-# 24 jul. 2020	7,50	7,54	7,39	7,39	    7,39	        7.528.641
-# 23 jul. 2020	7,87	7,87	7,53	7,58	    7,58	        6.492.829
 
-# 22 jul. 2020	7,85	7,92	7,64	7,67	    7,67	        7.345.795
+# stock = "REP.MC"
+# window_len = 40
+# pred_range = 20
+# feature = "cierre_ajustado"
+# fecha = datetime.datetime(2020, 7, 22)
+
+# db = create_connection("./instance/flaskr.sqlite")
+# df_0 = pd.read_sql('select * from luis', db)
+# db.close()
+
+# last_i, r_scale, X_news, Y_news, LSTM_input = getInput(
+#     df_0, stock, window_len, pred_range, fecha)
+
+# model = keras.models.load_model(
+#     '/home/luis/git/udacity-ds-nanodegree-capstone/models/1')
+
+# prediction = (model.predict(LSTM_input) + 1) * r_scale[stock]
+
+# print(X_news)
+# print(Y_news)
+# print(prediction[0])
+# print(type(prediction[0]))
+
+# (2089, 40, 14)
+# (2089, 20)
+
+# (2107, 40, 14)
+# (2109,)
+
+print([x for x in range(1,5)])

@@ -4,6 +4,12 @@ from flaskr.db import get_db
 def save_model_data(
     x_tickers, y_tickers, window_len, pred_range, feature, last_fecha, id_user
 ):
+    for x_tck in x_tickers:
+        print(x_tck)
+
+    for y_tck in y_tickers:
+        print(y_tck)
+
     get_db().execute("DELETE FROM models_data WHERE id = ?", (id_user,))
 
     get_db().execute(
@@ -16,7 +22,7 @@ def save_model_data(
 
     for x_ticker in x_tickers:
         get_db().execute("INSERT INTO models_x_tickers (models_id, ticker_id, ticker_type)\
-            VALUES (?, ?, ?)", (id_user, x_ticker, "X"))
+            VALUES (?, ?, ?)", (id_user, int(x_ticker.id), "X"))
 
     for y_ticker in y_tickers:
         get_db().execute("INSERT INTO models_x_tickers (models_id, ticker_id, ticker_type)\
@@ -32,7 +38,7 @@ def load_model_data(id_user):
     ).fetchone()
 
     models_x_tickers = get_db().execute(
-        "select mxt.ticker_type as ticker_type, tck.code as code\
+        "select mxt.ticker_type as ticker_type, tck.id as id\
         from models_x_tickers mxt inner join tickers tck\
         on tck.id = mxt.ticker_id and mxt.models_id = ?",
         (id_user,)
@@ -42,9 +48,9 @@ def load_model_data(id_user):
     y_stocks = []
     for ticker in models_x_tickers:
         if ticker['ticker_type'] == 'X':
-            x_stocks.append(ticker['code'])
+            x_stocks.append(str(ticker['id']))
 
         if ticker['ticker_type'] == 'Y':
-            y_stocks.append(ticker['code'])
+            y_stocks.append(str(ticker['id']))
 
     return user_model_data, x_stocks, y_stocks
