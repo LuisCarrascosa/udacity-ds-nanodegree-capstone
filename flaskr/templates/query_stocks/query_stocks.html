@@ -14,11 +14,11 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-xl border border-primary">
+        <div class="col-xl-4 border border-primary">
             <br>
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-xl">
+                    <div class="col-xl-6">
                         <div class="row">
                             <div class="col-xl">
                                 <h4 class="text-center">Model parameters</h4>
@@ -37,7 +37,7 @@
                         </div>
                         {% endfor %}
                     </div>
-                    <div class="col-xl-7">
+                    <div class="col-xl-6">
                         <div class="row">
                             <div class="col-xl">
                                 <h4 class="text-center">X stocks</h4>
@@ -52,21 +52,19 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-xl-4">
-                        <br>
-                        <a class="action" href="{{ url_for('main.main') }}">
-                            Volver</a>
-                    </div>
-                </div>
             </div>
         </div>
-        <div class="col-xl border border-primary">
-            <div style="height: 800px; width:100%; overflow-y: auto;">
-                {% if predicted_graph %}
-                <img src='data:image/png;base64,{{ predicted_graph }}' class="img-fluid" />
-                {% endif %}
-            </div>
+        <div class="col-xl-8 border border-primary">
+            {% if predicted_graph %}
+            <img src='data:image/png;base64,{{ predicted_graph }}' class="img-fluid" />
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl">
+            <br>
+            <a class="action" href="{{ url_for('main.main') }}">
+                Volver</a>
         </div>
     </div>
 </div>

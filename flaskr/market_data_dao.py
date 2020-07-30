@@ -126,3 +126,23 @@ def save_dataframe_table(table_name, df):
 
 def load_dataframe_table(table_name):
     return pd.read_sql(f'select * from {table_name}', get_db())
+
+
+def get_market_data(stock_id, start_date, end_date=None, feature=None):
+    if feature is None:
+        sql = "select fecha, apertura, maximo, minimo, cierre,\
+            cierre_ajustado, volumen from market_data where ticker_id = ?\
+                and date(fecha) >= date(?)"
+    else:
+        sql = f"select fecha, {feature} from market_data where ticker_id = ?\
+                and date(fecha) >= date(?)"
+
+    if end_date is None:
+        sql_params = (stock_id, start_date, )
+        query = sql
+    else:
+        sql_params = (stock_id, start_date, end_date,)
+        query = ' '.join([sql, "AND date(fecha) <= date(?)"])
+
+    # print(f"Query: {query}")
+    return get_db().execute(query, sql_params).fetchall()

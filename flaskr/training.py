@@ -84,7 +84,7 @@ def training():
             session.get('user_id')
         )['username'])
 
-    df.reset_index(inplace=True)
+    print(df.head())
 
     resto = len(df) % (window_len + pred_range)
     df.drop([row for row in range(0, resto)], axis=0, inplace=True)
@@ -155,10 +155,7 @@ def training():
         callbacks=[learningRateScheduler]
     )
 
-    # df_original = data_dao.load_dataframe_table(
-    #     users_dao.select_user_byId(
-    #         session.get('user_id')
-    #     )['username'])
+    print(f"LSTM_x_df_test_frames: {LSTM_x_df_test_frames.shape}")
 
     test_prediction = painter.draw_test_prediction(
         df_original,

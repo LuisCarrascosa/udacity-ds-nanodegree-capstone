@@ -3,6 +3,7 @@ import base64
 import numpy as np
 from io import BytesIO
 from matplotlib.figure import Figure
+from matplotlib.ticker import MaxNLocator
 
 
 # title(dataset.columns[group], y=0.5, loc='right')
@@ -75,21 +76,50 @@ def draw_losses(model_history):
     return base64.b64encode(buf.getbuffer()).decode("ascii")
 
 
-def draw_prediction(model, last_i, pred_range, r_scale, X_news, Y_news, LSTM_input):
+def draw_prediction(model, pred_range, stock_name, mk_data, feature, fecha, y_df, prediction):
     fig = Figure(figsize=(6, 3), dpi=200)
     axis = fig.add_subplot(1, 1, 1)
 
-    prediction = (model.predict(LSTM_input) + 1) * r_scale
+    x_fecha = y_df.index[-1]
+    y_ann = y_df[x_fecha]
 
-    axis.plot(X_news.index, Y_news, label='Present')
+    axis.plot(y_df, label='Historic')
+
+    print(f"y_df.tail: {y_df.tail()}")
+    print(f"prediction[0]: {prediction[0]}")
 
     axis.plot(
-        [
-            x for x in range(last_i + 1, last_i + pred_range + 1)
-        ],
+        [x for x in range(x_fecha, x_fecha + pred_range)],
         prediction[0], label='Prediction')
 
-    axis.legend()
+    # print(f"mk_data: {mk_data[-1]['fecha']}")
+    # print(f"type mk_data: {type(mk_data[-1]['fecha'])}")
+    if len(mk_data) > 1:
+        x_real_max = x_fecha + len(mk_data) 
+        y_real = [mkd[feature] for mkd in mk_data]
+
+        axis.plot(
+            [x for x in range(x_fecha, x_real_max)],
+            y_real, label='Real')
+
+        axis.annotate(
+            f"{mk_data[-1]['fecha']}",
+            xy=(x_real_max-1, y_real[-1]),
+            xytext=(x_real_max-5, y_real[-1]*1.05),
+            arrowprops=dict(facecolor='black', arrowstyle="->", connectionstyle="arc3"),
+        )
+
+    axis.set_title(f'{stock_name}. Prediction {pred_range} points')
+    axis.legend(prop={"size": 6})
+
+    axis.annotate(
+        f'{fecha.date()}',
+        xy=(x_fecha, y_ann),
+        xytext=(x_fecha-5, y_ann*1.05),
+        arrowprops=dict(facecolor='black', arrowstyle="->", connectionstyle="arc3"),
+    )
+
+    axis.xaxis.set_major_locator(MaxNLocator(integer=True))
     axis.grid(b=True)
     axis.autoscale_view()
     fig.tight_layout(pad=0.5)
@@ -121,7 +151,8 @@ def draw_test_prediction(
             )
 
         axis.plot(
-            df_original.iloc[y_df[i+nrows_training:i+nrows_training+pred_range].index]['Fecha'],
+            df_original.iloc[y_df[i+nrows_training:i +
+                                  nrows_training+pred_range].index]['Fecha'],
             np.array(y_preds),
             label=f'Predicted {pred_range} days'
         )
