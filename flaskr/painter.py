@@ -1,12 +1,10 @@
 import base64
-# import datetime
 import numpy as np
 from io import BytesIO
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 
 
-# title(dataset.columns[group], y=0.5, loc='right')
 def drawFeatures_byDict(df, nrows, ncols, tickers, f_ini=None, f_fin=None):
     fig = Figure(figsize=(6, 2.45*nrows), dpi=200)
 

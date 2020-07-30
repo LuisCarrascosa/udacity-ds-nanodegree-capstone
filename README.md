@@ -1,56 +1,28 @@
 # udacity-ds-nanodegree-capstone
+## luis.carrascosa.next@bbva.com
+### Project Overview
+In this project we want to provide a web interface that allows:
+- Acquisition of data on company quotes, funds or stock exchange indexes
+- Training of a LSTM model
+- Predicting product quotes
 
-source ~/Documentos/enviroments/desarrollo/bin/activate
+Flask is used on a SQLite database. Bootstrap is used for the layout.
 
-$ export FLASK_APP=stock_predictor_webapp.py
-$ flask run o puede ser python -m flask run
- * Running on http://127.0.0.1:5000/
+Stocks prices are obtained from [yahoo finance](https://es.finance.yahoo.com/), downloading the csvs and storing them in the database
 
-Externally Visible Server
-If you run the server you will notice that the server is only accessible from your own computer, not from any other in the network. This is the default because in debugging mode a user of the application can execute arbitrary Python code on your computer.
+### Project Statement
+The problem to be solved is the prediction of the prices of a stock. LSTM will be used for this purpose, taking as inputs:
+- past prices of the stock
+- technical value indicators of the stock
+- past prices of stocks related to the target
 
-If you have the debugger disabled or trust the users on your network, you can make the server publicly available simply by adding --host=0.0.0.0 to the command line:
+After the training of the model, the predictions will be shown against the last stock prices. In case more recent data have been obtained since the model was trained, they will also be shown to compare every day how reality evolves against the prediction.
 
-$ flask run --host=0.0.0.0
+It is expected that, although the predictions are not completely accurate, if we are able to anticipate trends that advise purchases or sales of shares of the target stock market value.
 
-https://flask.palletsprojects.com/en/1.1.x/quickstart/
+As a stock portfolio cannot have a single value, it is allowed that there are several models with different target values with their corresponding related values.
 
-app.logger.debug('A value for debugging')
-app.logger.warning('A warning occurred (%d apples)', 42)
-app.logger.error('An error occurred')
-
-flask init-db
-
-import logging
-
-from flask import Flask
-from werkzeug.utils import find_modules, import_string
-
-
-def configure_logging():
-    # register root logging
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger('werkzeug').setLevel(logging.INFO)
+### Metrics
+The MAE (Mean Absolute Error) metric is used during the training of the model to decide whether to keep or re-training the model by changing some parameter of the model (neurons, epochs, etc)
 
 
-def register_blueprints(app):
-    """Automagically register all blueprint packages
-    Just take a look in the blueprints directory.
-    """
-    for name in find_modules('blueprints', recursive=True):
-        mod = import_string(name)
-        if hasattr(mod, 'bp'):
-            app.register_blueprint(mod.bp)
-    return None
-
-
-def create_app():
-    app = Flask(__name__)
-    configure_logging()
-    register_blueprints(app)
-    return app
-
-
-if __name__ == '__main__':
-    app = create_app()
-    app.run()

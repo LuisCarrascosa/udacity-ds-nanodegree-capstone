@@ -84,8 +84,6 @@ def training():
             session.get('user_id')
         )['username'])
 
-    print(df.head())
-
     resto = len(df) % (window_len + pred_range)
     df.drop([row for row in range(0, resto)], axis=0, inplace=True)
 
@@ -96,7 +94,8 @@ def training():
     df.drop(['Fecha'], axis=1, inplace=True)
 
     y_df = df[stock]
-    x_df = df.drop([stock], axis=1, inplace=False)
+    # x_df = df.drop([stock], axis=1, inplace=False)
+    x_df = df.copy()
 
     x_df_frames, y_df_frames = utils.get_frames(
         x_df, y_df, window_len, pred_range)
@@ -114,9 +113,6 @@ def training():
 
     LSTM_y_df_training_frames, LSTM_y_df_test_frames = utils.y_to_LSTM(
         df_y_training_frames, df_y_test_frames)
-
-    # print(LSTM_x_df_training_frames[0].shape)
-    # print(LSTM_y_df_training_frames.shape)
 
     training_form = utils.get_training_form(request.form)
 
@@ -155,7 +151,7 @@ def training():
         callbacks=[learningRateScheduler]
     )
 
-    print(f"LSTM_x_df_test_frames: {LSTM_x_df_test_frames.shape}")
+    # print(f"LSTM_x_df_test_frames: {LSTM_x_df_test_frames.shape}")
 
     test_prediction = painter.draw_test_prediction(
         df_original,

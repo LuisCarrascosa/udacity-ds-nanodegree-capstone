@@ -41,18 +41,16 @@ def index():
             session.get('user_id')
         )['username'])
 
-# fecha, {feature}
     mk_data = data_dao.get_market_data(stock_id, fecha, feature=feature)
 
     i_predict = df[df['Fecha'] == fecha].index[0]
-    # print(i_predict)
 
     df_frame = df.iloc[[x for x in range(i_predict-window_len+1, i_predict+1)]]
     df_frame.index = pd.RangeIndex(start=0, stop=len(df_frame), step=1)
 
-    x_df = df_frame.drop(['Fecha', stock], axis=1, inplace=False)
+    # x_df = df_frame.drop(['Fecha', stock], axis=1, inplace=False)
+    x_df = df_frame.drop(['Fecha'], axis=1, inplace=False)
     y_df = df_frame[stock]
-    # print(f"y_df: {y_df}")
 
     for col in list(x_df):
         x_df.loc[:, col] = x_df[col]/x_df[col].iloc[0] - 1
