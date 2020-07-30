@@ -83,24 +83,24 @@ def draw_prediction(model, pred_range, stock_name, mk_data, feature, fecha, y_df
     x_fecha = y_df.index[-1]
     y_ann = y_df[x_fecha]
 
-    axis.plot(y_df, label='Historic')
+    axis.plot(y_df, label='Historic', marker='o', markersize=3)
 
-    print(f"y_df.tail: {y_df.tail()}")
-    print(f"prediction[0]: {prediction[0]}")
+    # print(f"y_df.tail: {y_df.tail()}")
+    # print(f"prediction[0]: {prediction[0]}")
 
     axis.plot(
-        [x for x in range(x_fecha, x_fecha + pred_range)],
-        prediction[0], label='Prediction')
+        [x for x in range(x_fecha + 1, x_fecha + pred_range + 1)],
+        prediction[0], label='Prediction', marker='o', markersize=3)
 
     # print(f"mk_data: {mk_data[-1]['fecha']}")
     # print(f"type mk_data: {type(mk_data[-1]['fecha'])}")
     if len(mk_data) > 1:
-        x_real_max = x_fecha + len(mk_data) 
+        x_real_max = x_fecha + len(mk_data)
         y_real = [mkd[feature] for mkd in mk_data]
 
         axis.plot(
             [x for x in range(x_fecha, x_real_max)],
-            y_real, label='Real')
+            y_real, label='Real', marker='o', markersize=3)
 
         axis.annotate(
             f"{mk_data[-1]['fecha']}",
