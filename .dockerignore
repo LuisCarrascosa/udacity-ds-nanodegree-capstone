@@ -1,0 +1,15 @@
+venv
+instance
+dist
+build
+.vscode
+models
+udacity*
+file_path
+MANIFEST*
+.gitignore
+setup.py
+init.sh
+init_db.sh
+flaskr/schema.sql
+cosas.txt

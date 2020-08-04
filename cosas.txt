@@ -1,0 +1,2 @@
+docker build -t stocks_predictor:latest .
+docker-compose up
