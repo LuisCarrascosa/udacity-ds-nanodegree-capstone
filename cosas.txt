@@ -1,2 +1,7 @@
 docker build -t stocks_predictor:latest .
 docker-compose up
+
+docker login -u "luiscarrascosa" -p "dameargo" docker.io
+
+docker tag udacity-ds-nanodegree-capstone_web:latest luiscarrascosa/stock_predictor:latest
+docker push luiscarrascosa/stock_predictor:latest
