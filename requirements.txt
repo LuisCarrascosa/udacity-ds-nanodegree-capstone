@@ -36,7 +36,7 @@ Markdown==3.2.2
 MarkupSafe==2.0.0a1
 matplotlib==3.2.1
 mccabe==0.6.1
-numpy==1.18.5
+numpy==1.22.0
 oauthlib==3.1.0
 opt-einsum==3.2.1
 pandas==1.0.4
